@@ -8,9 +8,10 @@ An agent skill for reviewing Git changes and proposing clear, atomic Conventiona
 - Discovers commit types, scopes, subject rules, checks, architecture conventions, and release behavior from repository evidence across language-specific and polyglot projects.
 - Groups independent responsibilities into reviewable commit proposals.
 - Explains verified release impact and flags uncertainty, especially around custom release rules and breaking changes.
-- Reports executed and skipped checks without claiming unverified results.
+- Chooses targeted checks based on repository requirements and concrete change risks, reusing valid hook results to avoid duplicate runs.
+- Reports actual hook/check outcomes and skipped validations without claiming unverified results.
 
-The skill does not assume a particular package manager, language, architecture, module layout, or release tool. It uses repository manifests, scripts, CI, and documentation as discovery hints (for example `pyproject.toml`, `Cargo.toml`, `go.mod`, Maven/Gradle files, or `.sln`/`.csproj` alongside JavaScript/TypeScript configuration), and runs only checks that repository policy or the user requires. It supports polyglot repositories by relating checks to the affected components. It does not commit, amend, rebase, or push unless the user explicitly authorizes that action.
+The skill does not assume a particular package manager, language, architecture, module layout, or release tool. It uses repository manifests, scripts, CI, hooks, and documentation as discovery evidence (for example `pyproject.toml`, `Cargo.toml`, `go.mod`, Maven/Gradle files, or `.sln`/`.csproj` alongside JavaScript/TypeScript configuration). It limits checks to repository requirements, user requests, and concrete risks; it reuses a hook result only when the actual command, inputs, and covered scope match. It supports polyglot repositories by relating checks to affected components. It does not commit, amend, rebase, or push without explicit authorization.
 
 ## Installation
 
@@ -29,6 +30,7 @@ Ask the agent to review staged or working-tree changes, propose atomic commits, 
 ## Contents
 
 - `SKILL.md` — workflow and agent instructions
+- `CHANGELOG.md` — version history
 - `LICENSE` — MIT License
 
 ## License
