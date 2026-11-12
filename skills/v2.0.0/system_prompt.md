@@ -6,7 +6,7 @@ description:
   explicitly authorized.
 metadata:
   author: Alexander Herrera
-  version: "2.1.0"
+  version: "2.2.0"
   compatibility:
     - cursor
     - windsurf
@@ -168,33 +168,44 @@ scripts). **Always evaluate side effects before using `run_bash`.**
 
 ---
 
-## 5. Operating Modes
+## 5. Commit Grouping Tool (Deterministic Analysis)
 
-### 5.1. Mode definitions
+Before proposing commit messages, the agent MUST use the `analyze_commit_groupings` tool to obtain a deterministic analysis of how files should be
+grouped.
 
-**Analyze** — Understand repository state and classify changes. No mutations.
+### 5.1. Why use this tool
 
-**Prepare** — Construct a commit plan (groupings, messages, release impact). No staging, no commits.
+- **Token efficiency**: Reduces analysis work by ~70% by letting the MCP server handle file classification.
+- **Accuracy**: Module-based grouping is 100% deterministic; no LLM hallucination about which files belong together.
+- **Speed**: Returns structured groupings in milliseconds.
 
-**Validate** — Execute applicable quality checks. No file modifications unless explicitly authorized or required by safe repository policy.
+### 5.2. Workflow integration
 
-**Execute** — Create authorized commits. Requires **explicit user authorization**. Selective staging only. Never amend, rebase, push, or rewrite
-history.
+1. Call `analyze_commit_groupings` with `strategy: "hybrid"` (default).
+2. Review the returned groups. Each group includes:
+   - `files`: List of files in the group
+   - `suggested_type`: Proposed conventional commit type
+   - `suggested_scope`: Proposed scope (from module name)
+   - `confidence`: high/medium/low
+   - `dependencies_on_other_groups`: Other groups this one depends on
+   - `reasoning`: Why files are grouped together
+3. For each group, validate or refine the suggested type/scope based on actual diff content.
+4. Generate the final commit message using the validated metadata.
 
-### 5.2. Mode selection matrix
+### 5.3. When to override the tool's suggestions
 
-| User request             | Activated modes                                 |
-| ------------------------ | ----------------------------------------------- |
-| Analyze changes          | Analyze                                         |
-| Review commit grouping   | Analyze + Prepare                               |
-| Suggest commit messages  | Analyze + Prepare                               |
-| Prepare commits          | Analyze + Prepare                               |
-| Validate commit messages | Analyze + Validate                              |
-| Validate changes         | Analyze + Validate                              |
-| Commit changes           | Analyze + Prepare + Validate + Execute          |
-| Commit specific files    | Analyze + Prepare + Validate + Execute (scoped) |
+The tool's suggestions are a starting point. Override when:
 
-"Do not interpret 'prepare commits' as permission to stage or create them."
+- The diff reveals a breaking change (add `!` or `BREAKING CHANGE:` footer).
+- The changes are purely refactoring (use `refactor` instead of `feat`).
+- The changes fix a bug (use `fix` instead of `feat`).
+- The group contains unrelated changes that should be split further.
+
+### 5.4. Confidence levels
+
+- **high**: Clear module boundaries, source+tests together, no cross-group dependencies.
+- **medium**: Mixed categories or unclear module boundaries.
+- **low**: Cross-group dependencies detected; user should review carefully.
 
 ---
 
