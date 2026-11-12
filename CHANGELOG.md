@@ -4,6 +4,33 @@ All notable changes to Conventional Commit Workflow are documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## [2.1.0] - 2026-11-13
+
+### ✨ Added
+
+- **5 new MCP tools** for deep repository introspection:
+  - `get_repository_context`: Comprehensive toolchain, structure, and configuration discovery
+  - `get_commit_config`: Commitlint rules, commitizen config, and observed conventions from history
+  - `get_release_config`: semantic-release configuration, analyzer rules, and custom release rules
+  - `list_git_hooks`: Active Git hooks detection (Husky, Lefthook, pre-commit, native)
+  - `validate_commit_message`: Validates messages against conventional format and repository rules
+- **Enhanced `git_log` tool**: Now parses conventional commit format and extracts type/scope/breaking info
+- **Enhanced `git_status` tool**: Detects active operations (merge, rebase, cherry-pick, revert, bisect)
+- **Enhanced `git_diff` tool**: Added path filtering and stat-only mode
+- **Tool preference hierarchy**: Clear guidance on which tool to use when multiple options exist
+
+### 🔄 Changed
+
+- **MCP server architecture**: Refactored to a "tool facilitator" model - the MCP server provides robust tools, the LLM performs the reasoning
+- **Safe execution wrapper**: All shell commands now use `safeExec` with proper error handling and output capture
+- **Improved error reporting**: Tools return structured errors instead of throwing exceptions
+
+### 🛡️ Security & Safety
+
+- **Buffer limits**: Added 10MB max buffer to shell commands to prevent memory exhaustion
+- **Path validation**: File operations validate paths before execution
+- **Graceful degradation**: Tools return partial results instead of failing completely when optional data is unavailable
+
 ## [2.0.0] - 2026-11-13
 
 ### 🚨 Major Architectural Overhaul
