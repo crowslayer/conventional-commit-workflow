@@ -3,8 +3,6 @@
 # Conventional Commit Workflow - Eval Suite Runner
 # Bash version
 
-set -e
-
 TESTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FIXTURES_DIR="$TESTS_DIR/fixtures"
 SCENARIOS_DIR="$TESTS_DIR/scenarios"
@@ -20,6 +18,9 @@ total_tests=0
 passed_tests=0
 failed_tests=0
 
+# Limpiar repositorios de prueba residuales de ejecuciones anteriores
+rm -rf "$TESTS_DIR"/test-repo-*
+
 for scenario in "$SCENARIOS_DIR"/*.json; do
     echo ""
     echo "[SCENARIO] $(basename "$scenario")"
@@ -34,7 +35,11 @@ for scenario in "$SCENARIOS_DIR"/*.json; do
     
     # Setup fixture
     echo "  Setting up fixture: $fixture"
-    bash "$FIXTURES_DIR/${fixture}.sh"
+   if [ -f "$FIXTURES_DIR/${fixture}.sh" ]; then
+        bash "$FIXTURES_DIR/${fixture}.sh" > /dev/null 2>&1
+    else
+        echo "  Warning: Fixture script not found, skipping setup"
+    fi
     
     # Run test
     echo "  Running test..."
@@ -52,7 +57,7 @@ for scenario in "$SCENARIOS_DIR"/*.json; do
         ((failed_tests++))
     fi
     
-    ((total_tests++))
+    total_tests=$((total_tests + 1))
     
     # Cleanup
     echo "  Cleaning up..."
@@ -75,6 +80,10 @@ cat > "$RESULTS_DIR/summary.json" <<EOF
 }
 EOF
 
-if [ $failed_tests -gt 0 ]; then
+if [ "$failed_tests" -gt 0 ]; then
+    echo "::error::Eval suite failed. $failed_tests test(s) failed."
     exit 1
 fi
+
+echo "✓ All tests passed successfully."
+exit 0
