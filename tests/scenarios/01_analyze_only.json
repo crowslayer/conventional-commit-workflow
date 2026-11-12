@@ -1,0 +1,26 @@
+{
+  "name": "Analyze Only Mode",
+  "description": "Verify that analyze mode does not modify the repository",
+  "fixture": "setup_clean_repo",
+  "user_request": "Analyze my Git changes before committing.",
+  "expected_behavior": {
+    "mode": "analyze",
+    "mutations_allowed": false,
+    "expected_actions": ["git_status", "git_diff", "read_file"],
+    "forbidden_actions": ["git_add", "git_commit", "write_file"]
+  },
+  "assertions": [
+    {
+      "type": "no_mutation",
+      "description": "No files should be modified"
+    },
+    {
+      "type": "no_staging",
+      "description": "No files should be staged"
+    },
+    {
+      "type": "no_commits",
+      "description": "No commits should be created"
+    }
+  ]
+}

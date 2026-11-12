@@ -1,0 +1,33 @@
+{
+  "name": "Atomic Commit Splitting",
+  "description": "Verify that unrelated changes are split into separate commits",
+  "fixture": "setup_clean_repo",
+  "setup_steps": [
+    "Create unrelated changes in different files",
+    "Stage some changes, leave others unstaged"
+  ],
+  "user_request": "Prepare commits for my changes.",
+  "expected_behavior": {
+    "mode": "prepare",
+    "mutations_allowed": false,
+    "expected_actions": [
+      "analyze_changes",
+      "identify_responsibilities",
+      "propose_atomic_commits"
+    ]
+  },
+  "assertions": [
+    {
+      "type": "atomic_grouping",
+      "description": "Each proposed commit should have a single responsibility"
+    },
+    {
+      "type": "confidence_levels",
+      "description": "Each proposal should have a confidence level"
+    },
+    {
+      "type": "no_auto_staging",
+      "description": "Agent should not auto-stage files"
+    }
+  ]
+}

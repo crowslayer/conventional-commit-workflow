@@ -1,190 +1,177 @@
 # Conventional Commit Workflow
 
-An agent skill for analyzing Git changes, proposing atomic commits, validating Conventional Commit messages, and evaluating release impact using each repository's actual conventions and configuration.
+> A defensive, evidence-based Git commit management agent skill for AI coding assistants.
 
-## Features
+[![Version](https://img.shields.io/badge/version-1.4.0-blue)](./skills/v1.4.0/system_prompt.md)
+[![Eval Status](https://img.shields.io/badge/eval-passing-brightgreen)](./tests/)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-purple)](./mcp_server/)
 
-- **Git change analysis:** Inspects staged, unstaged, and untracked changes while preserving existing user work and staging decisions.
-- **Atomic commit proposals:** Groups related changes into coherent, independently reviewable commits.
-- **Repository-aware conventions:** Discovers accepted commit types, scopes, message formats, validation rules, and repository-specific instructions.
-- **Release impact analysis:** Evaluates PATCH, MINOR, MAJOR, NO RELEASE, or UNKNOWN outcomes using the effective release configuration.
-- **Breaking change detection:** Identifies potentially breaking changes and evaluates them against the configured release analyzer.
-- **Targeted validation:** Identifies and executes applicable tests, linting, type checking, and architectural checks when required or requested.
-- **Architecture awareness:** Considers DDD, Hexagonal Architecture, and CQRS when established by the repository.
-- **Polyglot and monorepo support:** Relates changes and validation requirements to affected components, regardless of language or module structure.
-- **Execution safety:** Separates analysis, preparation, validation, and commit execution, requiring explicit authorization before modifying the Git index or creating commits.
-- **Evidence-based reporting:** Distinguishes configured policies, observed conventions, executed checks, recommendations, and unresolved uncertainties.
+## 🎯 What is this?
 
-## How it works
+A **system prompt / agent skill** that turns any AI coding assistant (Cursor, Windsurf, VS Code Copilot, Claude Projects, Custom GPT, or any MCP-compatible agent) into a **specialized Git commit management agent**.
 
-The skill follows a structured workflow:
+It analyzes your working tree, groups changes into atomic commits, applies Conventional Commits, evaluates semantic-release impact, validates against repository policy, and executes commits **only when you explicitly authorize it**.
 
-1. **Detect intent:** Determines whether the request concerns commit analysis, preparation, validation, or execution.
-2. **Inspect Git state:** Captures the initial repository status and examines staged, unstaged, and untracked changes.
-3. **Discover repository policies:** Identifies applicable instructions, toolchains, commit conventions, validation requirements, and release configuration.
-4. **Classify changes:** Identifies independent responsibilities and groups related modifications into atomic commit proposals.
-5. **Prepare messages:** Generates Conventional Commit messages consistent with the repository's actual conventions.
-6. **Evaluate release impact:** Applies the effective release analyzer when available and identifies breaking changes and uncertainties.
-7. **Validate:** Runs only the required or justified checks and reports their actual results.
-8. **Execute when authorized:** Stages explicitly authorized changes, respects mandatory hooks, creates commits, and verifies their results.
+## ⚡ Why this skill exists
 
-## Operating modes
+Most AI coding assistants are **too eager** with Git operations. They:
 
-The skill supports four operating modes:
+- Run `git add .` and commit unrelated changes.
+- Hallucinate repository conventions.
+- Confuse "prepare commits" with "execute commits".
+- Bypass Git hooks to save time.
+- Claim commits succeeded before Git confirms.
 
-| Mode     | Responsibility                                              |
-| -------- | ----------------------------------------------------------- |
-| Analyze  | Inspect Git state, discover policies, and classify changes. |
-| Prepare  | Group changes and propose atomic commits and messages.      |
-| Validate | Execute applicable quality checks and message validation.   |
-| Execute  | Stage authorized changes and create commits.                |
+This skill was designed with **defensive engineering** as the first principle. Every mutation requires explicit authorization. Every claim must be backed by evidence. Every repository policy must be discovered, not assumed.
 
-Analysis and preparation do not modify the repository. Validation is subject to the safety restrictions documented in `SKILL.md`.
+## 🏗️ Architecture
 
-Commit execution always requires explicit user authorization.
+### State Machine
 
-## Repository compatibility
+```mermaid
+stateDiagram-v2
+    [*] --> DetectIntent
+    DetectIntent --> CaptureBaseline : commit-related intent
+    DetectIntent --> [*] : unrelated request
+    CaptureBaseline --> DiscoverPolicy
+    DiscoverPolicy --> ClassifyChanges
+    ClassifyChanges --> BuildCommitPlan
+    BuildCommitPlan --> DetermineValidation
+    DetermineValidation --> Validate
+    Validate --> Report
+    Report --> [*] : analysis-only
+    Report --> AuthorizeExecution : user authorizes
+    AuthorizeExecution --> Execute
+    Execute --> Verify
+    Verify --> Finish
+    Finish --> [*]
 
-The skill does not assume a particular language, package manager, architecture, directory layout, or release tool.
+    note right of ClassifyChanges
+        Confidence levels:
+        Confirmed / Probable / Ambiguous
+    end note
 
-It discovers the effective repository configuration using relevant manifests, scripts, documentation, CI workflows, hooks, and release configuration.
-
-Examples include:
-
-- **JavaScript / TypeScript:** `package.json`, lockfiles, workspace configuration, ESLint, Prettier, and TypeScript configuration.
-- **Python:** `pyproject.toml`, `tox.ini`, Ruff, Black, mypy, and pytest configuration.
-- **Rust:** `Cargo.toml`, `Cargo.lock`, workspace manifests, rustfmt, and Clippy.
-- **Go:** `go.mod`, `go.work`, and repository validation scripts.
-- **Java / JVM:** Maven and Gradle configuration.
-- **.NET:** `.sln`, `.csproj`, `Directory.Build.*`, and `global.json`.
-
-These are discovery examples, not mandatory dependencies.
-
-The skill supports polyglot repositories and monorepos by identifying the components affected by each change and applying only the relevant validation requirements.
-
-## Release compatibility
-
-Release impact is determined by the repository's effective release configuration, not merely by the Conventional Commit type.
-
-When semantic-release or another release analyzer is configured, the skill evaluates its actual rules, including custom release rules and breaking-change handling.
-
-Possible classifications:
-
-- `MAJOR`
-- `MINOR`
-- `PATCH`
-- `NO RELEASE`
-- `UNKNOWN`
-
-When release configuration is absent or incomplete, the skill reports uncertainty instead of promising a release.
-
-Individual commit classification is distinguished from actual release publication, which may depend on branches, tags, release ranges, and CI conditions.
-
-## Safety principles
-
-The skill is designed to preserve user control over Git operations.
-
-It never:
-
-- Executes destructive Git operations implicitly.
-- Discards or overwrites existing user changes.
-- Automatically stages all repository modifications.
-- Modifies existing staging decisions without authorization.
-- Creates commits without explicit authorization.
-- Amends, rebases, or pushes without explicit authorization.
-- Bypasses mandatory repository hooks.
-- Claims that skipped or unavailable checks passed.
-
-Existing staged changes are treated as user-owned work.
-
-Ambiguous commit groupings are reported before modifying the staging area.
-
-## Installation
-
-Install the skill using the directory name `conventional-commit-workflow` in a skills location supported by your agent.
-
-Expected structure:
-
-```text
-<skills-directory>/
-└── conventional-commit-workflow/
-    ├── SKILL.md
-    ├── README.md
-    ├── CHANGELOG.md
-    └── LICENSE
+    note right of AuthorizeExecution
+        EXPLICIT authorization
+        required. No implicit commits.
+    end note
 ```
 
-Keep `SKILL.md` at the root of the skill directory.
+### Operating Modes
 
-Restart or refresh the agent if it does not discover newly installed skills.
+| Mode     | Purpose                     | Mutations allowed? |
+| -------- | --------------------------- | ------------------ |
+| Analyze  | Understand repository state | ❌ No              |
+| Prepare  | Construct commit plan       | ❌ No              |
+| Validate | Run quality checks          | ⚠️ Only if safe    |
+| Execute  | Create authorized commits   | ✅ Yes (scoped)    |
 
-Refer to your agent's documentation for supported skill installation locations and invocation syntax.
+## 🚀 Installation
 
-## Usage
+### Cursor / Windsurf
 
-Examples of supported requests:
+Copy the contents of [`skills/v1.4.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or `.windsurfrules` file. A pre-adapted version is available at [`.cursorrules`](./.cursorrules).
 
-**Analyze changes**
+### VS Code Copilot
 
-```text
-Analyze my current Git changes and identify independent responsibilities.
+Add the skill content to your `.github/copilot-instructions.md` or workspace instructions.
+
+### Claude Projects
+
+Paste the skill content into the Project Instructions.
+
+### Custom GPT
+
+Use the skill content as the GPT's system instructions.
+
+### MCP Server (for agent frameworks)
+
+```bash
+cd mcp_server
+npm install
+npm run build
 ```
 
-**Prepare atomic commits**
+Then configure your MCP client to connect to the server. See [`mcp_server/README.md`](./mcp_server/README.md).
 
-```text
-Group my changes into atomic Conventional Commits.
+## 📋 Usage Examples
+
+### Analyze changes (read-only)
+
+```
+User: Analyze my Git changes before committing.
+Agent: [Runs in Analyze mode, produces structured report]
 ```
 
-**Generate commit messages**
+### Prepare commits
 
-```text
-Suggest Conventional Commit messages based on the repository conventions.
+```
+User: Group my changes into atomic commits and suggest messages.
+Agent: [Runs in Analyze + Prepare mode, proposes commit plan]
 ```
 
-**Evaluate release impact**
+### Execute commits (requires authorization)
 
-```text
-Analyze the release impact of these changes, including potential breaking changes.
+```
+User: Commit the proposed changes.
+Agent: [Runs full pipeline, asks for confirmation, executes, verifies]
 ```
 
-**Validate changes**
+## 🛡️ Safety Guarantees
 
-```text
-Identify and run the required validation checks for my proposed commits.
+This skill will **NEVER**, without explicit authorization:
+
+- ❌ Run `git reset --hard`, `git checkout -- .`, or `git restore .`
+- ❌ Run `git add .` or `git add -A`
+- ❌ Amend, rebase, push, or rewrite history
+- ❌ Bypass Git hooks
+- ❌ Modify user-owned changes
+- ❌ Invent repository policies or validation results
+- ❌ Claim commit success before Git confirms
+
+## 🧪 Eval-Driven Development
+
+Every release is validated against automated behavioral tests. See [`tests/`](./tests/) for scenarios including:
+
+- Analysis-only mode respects read-only constraint.
+- No hard reset in dangerous repository states.
+- Atomic splitting in monorepos.
+- Explicit authorization required for execution.
+
+Run locally:
+
+```bash
+# PowerShell
+./tests/run_evals.ps1
+
+# Bash
+./tests/run_evals.sh
 ```
 
-**Execute authorized commits**
+## 📦 Compatibility
 
-```text
-Execute the approved commit plan using only the files we identified.
-```
+- ✅ Cursor
+- ✅ Windsurf
+- ✅ VS Code Copilot
+- ✅ Claude Projects
+- ✅ Custom GPT
+- ✅ MCP (Model Context Protocol)
+- ✅ Any agent framework supporting system prompts
 
-The skill will inspect repository instructions and configuration before making recommendations.
+## 🤝 Contributing
 
-Requests to prepare commits or suggest messages do not authorize staging or commit creation.
+Contributions welcome! Please:
 
-## Project structure
+1. Open an issue describing the change.
+2. Add a test scenario in `tests/scenarios/`.
+3. Update `CHANGELOG.md`.
+4. Submit a PR.
 
-```text
-conventional-commit-workflow/
-├── SKILL.md
-├── README.md
-├── CHANGELOG.md
-└── LICENSE
-```
+## 📄 License
 
-- `SKILL.md` — Complete agent instructions, operating modes, safety rules, validation workflow, and reporting requirements.
-- `README.md` — Overview, features, installation, compatibility, and usage.
-- `CHANGELOG.md` — Version history and notable changes.
-- `LICENSE` — MIT License.
+MIT © Alexander Herrera
 
-## Version
+## 🙏 Acknowledgments
 
-**Current version:** 1.3.0
-
-See [CHANGELOG.md](CHANGELOG.md) for version history.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Inspired by the best practices of the Conventional Commits specification, semantic-release, and the defensive engineering principles of the AI agent safety community.
