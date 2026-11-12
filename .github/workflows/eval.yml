@@ -94,7 +94,7 @@ jobs:
           )
 
           for section in "${required_sections[@]}"; do
-            if ! grep -q "## $section" "$PROMPT"; then
+            if ! grep -Eq "^## .*${section}" "$PROMPT"; then
               echo "::error::Missing required section: $section"
               exit 1
             fi
