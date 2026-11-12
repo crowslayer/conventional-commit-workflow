@@ -11,7 +11,8 @@ So I built a solution 👇
 
 1/ Introducing: Conventional Commit Workflow v1.4.0
 
-A system prompt that turns any AI assistant into a specialized Git commit agent — with defensive engineering as the core principle.
+A system prompt that turns any AI assistant into a specialized Git commit agent — with defensive engineering as the core
+principle.
 
 Works with: Cursor, Windsurf, Claude, GPT, VS Code Copilot, MCP
 
@@ -58,11 +59,8 @@ Instead, it only reports what tools like ArchUnit, ESLint boundary plugins, or D
 
 6/ Key feature #5: Eval-Driven Development
 
-Every release is validated against automated behavioral tests:
-✓ Analyze-only mode respects read-only
-✓ No hard reset in dangerous states
-✓ Atomic splitting in monorepos
-✓ Explicit authorization required
+Every release is validated against automated behavioral tests: ✓ Analyze-only mode respects read-only ✓ No hard reset in
+dangerous states ✓ Atomic splitting in monorepos ✓ Explicit authorization required
 
 Tests run in CI on every PR.
 
@@ -77,10 +75,8 @@ Zero accidental `git reset --hard`. Zero lost work.
 
 8/ How to use it:
 
-Cursor/Windsurf: Copy to .cursorrules
-VS Code Copilot: Add to .github/copilot-instructions.md
-Claude Projects: Paste into Project Instructions
-MCP: Use the included server
+Cursor/Windsurf: Copy to .cursorrules VS Code Copilot: Add to .github/copilot-instructions.md Claude Projects: Paste
+into Project Instructions MCP: Use the included server
 
 Full docs: github.com/yourusername/conventional-commit-workflow
 
