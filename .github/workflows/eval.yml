@@ -1,0 +1,119 @@
+name: Eval Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  run-evals:
+    name: Run Behavioral Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "mcp_server/pnpm-lock.yaml"
+
+      - name: Install MCP server dependencies
+        working-directory: ./mcp_server
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP server
+        working-directory: ./mcp_server
+        run: pnpm run build
+
+      - name: Make eval scripts executable
+        run: chmod +x tests/run_evals.sh
+
+      - name: Run eval suite
+        run: ./tests/run_evals.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: tests/results/
+          retention-days: 30
+
+      - name: Check for failures
+        if: failure()
+        run: |
+          echo "::error::Eval suite failed. Check the test results artifact for details."
+          exit 1
+
+  validate-prompt:
+    name: Validate Prompt Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check prompt file exists
+        run: |
+          if [ ! -f "skills/v2.0.0/system_prompt.md" ]; then
+            echo "::error::system_prompt.md not found"
+            exit 1
+          fi
+
+      - name: Validate prompt sections
+        run: |
+          PROMPT="skills/v2.0.0/system_prompt.md"
+
+          required_sections=(
+            "Purpose"
+            "Absolute Prohibitions"
+            "Tool Definitions"
+            "Operating Modes"
+            "Mandatory Git Safety"
+            "Repository Policy Discovery"
+            "Validation Workflow"
+            "Atomic Commit Analysis"
+            "Commit Policy"
+            "semantic-release"
+            "Architecture Review"
+            "Commit Execution Authorization"
+            "Structured Output Schema"
+            "Workflow State Machine"
+          )
+
+          for section in "${required_sections[@]}"; do
+            if ! grep -Eq "^## .*${section}" "$PROMPT"; then
+              echo "::error::Missing required section: $section"
+              exit 1
+            fi
+          done
+
+          echo "✓ All required sections present"
+
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          config: .markdownlint.json
+          globs: |
+            **/*.md
+            !node_modules/**

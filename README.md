@@ -1,38 +1,182 @@
 # Conventional Commit Workflow
 
-An agent skill for reviewing Git changes and proposing clear, atomic Conventional Commits based on each repository's actual conventions and release configuration.
+> A defensive, evidence-based Git commit management agent skill for AI coding assistants.
 
-## What it does
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](./skills/v2.0.0/system_prompt.md)
+[![Eval Status](https://img.shields.io/badge/eval-passing-brightgreen)](./tests/)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-purple)](./mcp_server/)
 
-- Inspects staged, unstaged, and untracked changes while preserving existing user work.
-- Discovers commit types, scopes, subject rules, checks, architecture conventions, and release behavior from repository evidence across language-specific and polyglot projects.
-- Groups independent responsibilities into reviewable commit proposals.
-- Explains verified release impact and flags uncertainty, especially around custom release rules and breaking changes.
-- Chooses targeted checks based on repository requirements and concrete change risks, reusing valid hook results to avoid duplicate runs.
-- Reports actual hook/check outcomes and skipped validations without claiming unverified results.
+## 🎯 What is this?
 
-The skill does not assume a particular package manager, language, architecture, module layout, or release tool. It uses repository manifests, scripts, CI, hooks, and documentation as discovery evidence (for example `pyproject.toml`, `Cargo.toml`, `go.mod`, Maven/Gradle files, or `.sln`/`.csproj` alongside JavaScript/TypeScript configuration). It limits checks to repository requirements, user requests, and concrete risks; it reuses a hook result only when the actual command, inputs, and covered scope match. It supports polyglot repositories by relating checks to affected components. It does not commit, amend, rebase, or push without explicit authorization.
+A **system prompt / agent skill** that turns any AI coding assistant (Cursor, Windsurf, VS Code Copilot, Claude Projects, Custom GPT, or any
+MCP-compatible agent) into a **specialized Git commit management agent**.
 
-## Installation
+It analyzes your working tree, groups changes into atomic commits, applies Conventional Commits, evaluates semantic-release impact, validates against
+repository policy, and executes commits **only when you explicitly authorize it**.
 
-Install the skill using the skill directory name `conventional-commit-workflow` in a skills location supported by your agent. Keep `SKILL.md` at the root of that directory. For example:
+## ⚡ Why this skill exists
 
-```text
-<skills-directory>/conventional-commit-workflow/SKILL.md
+Most AI coding assistants are **too eager** with Git operations. They:
+
+- Run `git add .` and commit unrelated changes.
+- Hallucinate repository conventions.
+- Confuse "prepare commits" with "execute commits".
+- Bypass Git hooks to save time.
+- Claim commits succeeded before Git confirms.
+
+This skill was designed with **defensive engineering** as the first principle. Every mutation requires explicit authorization. Every claim must be
+backed by evidence. Every repository policy must be discovered, not assumed.
+
+## Architecture
+
+### State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> DetectIntent
+    DetectIntent --> CaptureBaseline : commit-related intent
+    DetectIntent --> [*] : unrelated request
+    CaptureBaseline --> DiscoverPolicy
+    DiscoverPolicy --> ClassifyChanges
+    ClassifyChanges --> BuildCommitPlan
+    BuildCommitPlan --> DetermineValidation
+    DetermineValidation --> Validate
+    Validate --> Report
+    Report --> [*] : analysis-only
+    Report --> AuthorizeExecution : user authorizes
+    AuthorizeExecution --> Execute
+    Execute --> Verify
+    Verify --> Finish
+    Finish --> [*]
+
+    note right of ClassifyChanges
+        Confidence levels:
+        Confirmed / Probable / Ambiguous
+    end note
+
+    note right of AuthorizeExecution
+        EXPLICIT authorization
+        required. No implicit commits.
+    end note
 ```
 
-Restart or refresh the agent if it does not discover newly installed skills. Refer to your agent's skill documentation for supported installation locations and invocation syntax.
+### Operating Modes
 
-## Use
+| Mode     | Purpose                     | Mutations allowed? |
+| -------- | --------------------------- | ------------------ |
+| Analyze  | Understand repository state | ❌ No              |
+| Prepare  | Construct commit plan       | ❌ No              |
+| Validate | Run quality checks          | ⚠️ Only if safe    |
+| Execute  | Create authorized commits   | ✅ Yes (scoped)    |
 
-Ask the agent to review staged or working-tree changes, propose atomic commits, or explain the likely release effect. The skill will inspect the repository's instructions and configuration first. If policy is missing or ambiguous, it will label its assumptions rather than presenting them as enforced rules.
+## 🚀 Installation
 
-## Contents
+### Cursor / Windsurf
 
-- `SKILL.md` — workflow and agent instructions
-- `CHANGELOG.md` — version history
-- `LICENSE` — MIT License
+Copy the contents of [`skills/v2.0.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or `.windsurfrules` file. A pre-adapted
+version is available at [`.cursorrules`](./.cursorrules).
 
-## License
+### VS Code Copilot
 
-MIT. See [LICENSE](LICENSE).
+Add the skill content to your `.github/copilot-instructions.md` or workspace instructions.
+
+### Claude Projects
+
+Paste the skill content into the Project Instructions.
+
+### Custom GPT
+
+Use the skill content as the GPT's system instructions.
+
+### MCP Server (for agent frameworks)
+
+```bash
+cd mcp_server
+npm install
+npm run build
+```
+
+Then configure your MCP client to connect to the server. See [`mcp_server/README.md`](./mcp_server/README.md).
+
+## 📋 Usage Examples
+
+### Analyze changes (read-only)
+
+```
+User: Analyze my Git changes before committing.
+Agent: [Runs in Analyze mode, produces structured report]
+```
+
+### Prepare commits
+
+```
+User: Group my changes into atomic commits and suggest messages.
+Agent: [Runs in Analyze + Prepare mode, proposes commit plan]
+```
+
+### Execute commits (requires authorization)
+
+```
+User: Commit the proposed changes.
+Agent: [Runs full pipeline, asks for confirmation, executes, verifies]
+```
+
+## 🛡️ Safety Guarantees
+
+This skill will **NEVER**, without explicit authorization:
+
+- ❌ Run `git reset --hard`, `git checkout -- .`, or `git restore .`
+- ❌ Run `git add .` or `git add -A`
+- ❌ Amend, rebase, push, or rewrite history
+- ❌ Bypass Git hooks
+- ❌ Modify user-owned changes
+- ❌ Invent repository policies or validation results
+- ❌ Claim commit success before Git confirms
+
+## 🧪 Eval-Driven Development
+
+Every release is validated against automated behavioral tests. See [`tests/`](./tests/) for scenarios including:
+
+- Analysis-only mode respects read-only constraint.
+- No hard reset in dangerous repository states.
+- Atomic splitting in monorepos.
+- Explicit authorization required for execution.
+
+Run locally:
+
+```bash
+# PowerShell
+./tests/run_evals.ps1
+
+# Bash
+./tests/run_evals.sh
+```
+
+## 📦 Compatibility
+
+- ✅ Cursor
+- ✅ Windsurf
+- ✅ VS Code Copilot
+- ✅ Claude Projects
+- ✅ Custom GPT
+- ✅ MCP (Model Context Protocol)
+- ✅ Any agent framework supporting system prompts
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+1. Open an issue describing the change.
+2. Add a test scenario in `tests/scenarios/`.
+3. Update `CHANGELOG.md`.
+4. Submit a PR.
+
+## 📄 License
+
+MIT © Alexander Herrera
+
+## 🙏 Acknowledgments
+
+Inspired by the best practices of the Conventional Commits specification, semantic-release, and the defensive engineering principles of the AI agent
+safety community.
