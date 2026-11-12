@@ -6,13 +6,12 @@ _How I built an AI agent skill that refuses to destroy your Git history_
 
 ## The Problem with AI Coding Assistants in 2026
 
-We're in the golden age of AI coding assistants. Cursor, Windsurf, Claude, GPT-4 — they can write code, debug issues,
-and even manage our Git workflows.
+We're in the golden age of AI coding assistants. Cursor, Windsurf, Claude, GPT-4 — they can write code, debug issues, and even manage our Git
+workflows.
 
 But there's a dark side: **they're too eager**.
 
-Last month, I was reviewing a PR from a colleague who used an AI assistant to "prepare and commit" his changes. What he
-got was:
+Last month, I was reviewing a PR from a colleague who used an AI assistant to "prepare and commit" his changes. What he got was:
 
 ```bash
 $ git log --oneline -3
@@ -21,18 +20,16 @@ e4f5g6h WIP
 i7j8k9l Initial commit
 ```
 
-One commit. 47 files changed. Mixed responsibilities. No conventional commit format. And worst of all — the AI had run
-`git add .` without asking.
+One commit. 47 files changed. Mixed responsibilities. No conventional commit format. And worst of all — the AI had run `git add .` without asking.
 
 This is not an isolated incident. It's a systemic problem.
 
 ## The Birth of Conventional Commit Workflow
 
-I decided to build a solution: a **system prompt / agent skill** that turns any AI assistant into a specialized Git
-commit management agent — but with **defensive engineering** as the core principle.
+I decided to build a solution: a **system prompt / agent skill** that turns any AI assistant into a specialized Git commit management agent — but with
+**defensive engineering** as the core principle.
 
-The result is the [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow), now at
-v1.4.0.
+The result is the [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow), now at v1.4.0.
 
 ## What Makes It Different
 
@@ -72,14 +69,14 @@ No more hallucinated repository conventions.
 
 ### 4. Static-Analysis-Bound Architecture Review
 
-Here's a controversial decision: the skill **does not infer architectural violations by reading code**. It only reports
-what static analysis tools detect.
+Here's a controversial decision: the skill **does not infer architectural violations by reading code**. It only reports what static analysis tools
+detect.
 
-Why? Because LLMs hallucinate DDD violations. They'll tell you "this breaks hexagonal architecture" based on a
-superficial reading of the code. That's dangerous.
+Why? Because LLMs hallucinate DDD violations. They'll tell you "this breaks hexagonal architecture" based on a superficial reading of the code. That's
+dangerous.
 
-Instead, the skill integrates with ArchUnit, ESLint boundary plugins, Dependency Cruiser, and other tools. If they don't
-report a violation, the skill doesn't either.
+Instead, the skill integrates with ArchUnit, ESLint boundary plugins, Dependency Cruiser, and other tools. If they don't report a violation, the skill
+doesn't either.
 
 ### 5. Structured Output
 
@@ -144,8 +141,8 @@ I'm working on:
 
 ## Conclusion
 
-AI coding assistants are powerful, but they need guardrails. The Conventional Commit Workflow skill is my attempt to
-build those guardrails for Git operations.
+AI coding assistants are powerful, but they need guardrails. The Conventional Commit Workflow skill is my attempt to build those guardrails for Git
+operations.
 
 It's not perfect. It's not comprehensive. But it's **safe**, **evidence-based**, and **defensive by design**.
 

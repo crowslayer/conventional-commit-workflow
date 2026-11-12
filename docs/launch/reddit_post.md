@@ -1,4 +1,4 @@
-Title: I built a defensive Git agent skill that refuses to run `git add .` without permission (v1.4.0 released)
+# Title: I built a defensive Git agent skill that refuses to run `git add .` without permission (v1.4.0 released)
 
 Subreddit: r/programming, r/LocalLLaMA, r/artificial, r/ChatGPTCoding
 
@@ -6,12 +6,12 @@ Subreddit: r/programming, r/LocalLLaMA, r/artificial, r/ChatGPTCoding
 
 Hey everyone,
 
-I've been frustrated with AI coding assistants being too eager with Git operations. They run `git add .`, mix unrelated
-changes into single commits, hallucinate repository conventions, and sometimes even run destructive commands.
+I've been frustrated with AI coding assistants being too eager with Git operations. They run `git add .`, mix unrelated changes into single commits,
+hallucinate repository conventions, and sometimes even run destructive commands.
 
-So I built a solution: [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow) — a
-system prompt / agent skill that turns any AI assistant (Cursor, Windsurf, Claude, GPT, etc.) into a specialized Git
-commit management agent with **defensive engineering** as the core principle.
+So I built a solution: [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow) — a system prompt / agent skill
+that turns any AI assistant (Cursor, Windsurf, Claude, GPT, etc.) into a specialized Git commit management agent with **defensive engineering** as the
+core principle.
 
 ## What it does:
 
@@ -23,13 +23,11 @@ commit management agent with **defensive engineering** as the core principle.
 
 ## Key features:
 
-1. **Absolute Prohibitions**: Never runs `git reset --hard`, `git add .`, or rewrites history without explicit
-   permission
-2. **Four Operating Modes**: Analyze (read-only), Prepare (read-only), Validate (minimal mutations), Execute (requires
-   authorization)
+1. **Absolute Prohibitions**: Never runs `git reset --hard`, `git add .`, or rewrites history without explicit permission
+2. **Four Operating Modes**: Analyze (read-only), Prepare (read-only), Validate (minimal mutations), Execute (requires authorization)
 3. **Evidence Ledger**: Every claim is backed by verifiable evidence, no hallucinated conventions
-4. **Static-Analysis-Bound Architecture Review**: Only reports architectural violations that tools like ArchUnit or
-   ESLint boundary plugins detect (prevents LLM hallucinations about DDD violations)
+4. **Static-Analysis-Bound Architecture Review**: Only reports architectural violations that tools like ArchUnit or ESLint boundary plugins detect
+   (prevents LLM hallucinations about DDD violations)
 5. **Structured Output**: JSON schema for all reports, compatible with other agents and CI/CD
 6. **MCP Server**: Model Context Protocol implementation for agent frameworks
 
