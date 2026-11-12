@@ -6,29 +6,28 @@ This document explains the design decisions behind the Conventional Commit Workf
 
 ### 1. Defensive Engineering First
 
-AI agents in 2026 are powerful but unpredictable. This skill treats every Git mutation as a potentially destructive
-operation and requires explicit authorization. The default mode is always read-only.
+AI agents in 2026 are powerful but unpredictable. This skill treats every Git mutation as a potentially destructive operation and requires explicit
+authorization. The default mode is always read-only.
 
 ### 2. Evidence Over Assumption
 
-Every claim the agent makes must be backed by verifiable evidence. The Evidence Ledger (Section 6.3 of the skill) forces
-the agent to track what it actually observed vs. what it inferred.
+Every claim the agent makes must be backed by verifiable evidence. The Evidence Ledger (Section 6.3 of the skill) forces the agent to track what it
+actually observed vs. what it inferred.
 
 ### 3. Responsibility Boundaries
 
-The skill has a single responsibility: commit management. It explicitly refuses to perform code review, debugging,
-implementation, refactoring, or testing design. This prevents scope creep and conflicting workflows.
+The skill has a single responsibility: commit management. It explicitly refuses to perform code review, debugging, implementation, refactoring, or
+testing design. This prevents scope creep and conflicting workflows.
 
 ### 4. Repository-Aware, Not Repository-Presuming
 
-The skill discovers repository policy from executable configuration, documentation, and observed conventions. It never
-assumes the presence of specific tools (pnpm, ESLint, semantic-release) or architectural patterns (DDD, Hexagonal).
+The skill discovers repository policy from executable configuration, documentation, and observed conventions. It never assumes the presence of
+specific tools (pnpm, ESLint, semantic-release) or architectural patterns (DDD, Hexagonal).
 
 ### 5. Static-Analysis-Bound Architecture Review
 
-A critical design decision: the skill does NOT infer architectural violations by reading code. It only reports what
-static analysis tools (ArchUnit, ESLint boundary plugins, Dependency Cruiser) detect. This prevents LLM hallucinations
-about DDD/CQRS violations.
+A critical design decision: the skill does NOT infer architectural violations by reading code. It only reports what static analysis tools (ArchUnit,
+ESLint boundary plugins, Dependency Cruiser) detect. This prevents LLM hallucinations about DDD/CQRS violations.
 
 ## State Machine
 
@@ -64,5 +63,5 @@ The security model is based on three layers:
 2. **Mode restrictions:** Each mode has a defined set of allowed tools and operations.
 3. **Explicit authorization:** Execution mode requires clear user intent.
 
-This layered approach ensures that even if a user accidentally requests a dangerous operation, the skill will refuse
-unless the request is unambiguous and explicit.
+This layered approach ensures that even if a user accidentally requests a dangerous operation, the skill will refuse unless the request is unambiguous
+and explicit.

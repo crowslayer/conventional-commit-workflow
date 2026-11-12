@@ -9,12 +9,11 @@
 
 ## 🎯 What is this?
 
-A **system prompt / agent skill** that turns any AI coding assistant (Cursor, Windsurf, VS Code Copilot, Claude
-Projects, Custom GPT, or any MCP-compatible agent) into a **specialized Git commit management agent**.
+A **system prompt / agent skill** that turns any AI coding assistant (Cursor, Windsurf, VS Code Copilot, Claude Projects, Custom GPT, or any
+MCP-compatible agent) into a **specialized Git commit management agent**.
 
-It analyzes your working tree, groups changes into atomic commits, applies Conventional Commits, evaluates
-semantic-release impact, validates against repository policy, and executes commits **only when you explicitly authorize
-it**.
+It analyzes your working tree, groups changes into atomic commits, applies Conventional Commits, evaluates semantic-release impact, validates against
+repository policy, and executes commits **only when you explicitly authorize it**.
 
 ## ⚡ Why this skill exists
 
@@ -26,8 +25,8 @@ Most AI coding assistants are **too eager** with Git operations. They:
 - Bypass Git hooks to save time.
 - Claim commits succeeded before Git confirms.
 
-This skill was designed with **defensive engineering** as the first principle. Every mutation requires explicit
-authorization. Every claim must be backed by evidence. Every repository policy must be discovered, not assumed.
+This skill was designed with **defensive engineering** as the first principle. Every mutation requires explicit authorization. Every claim must be
+backed by evidence. Every repository policy must be discovered, not assumed.
 
 ## Architecture
 
@@ -75,8 +74,8 @@ stateDiagram-v2
 
 ### Cursor / Windsurf
 
-Copy the contents of [`skills/v2.0.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or
-`.windsurfrules` file. A pre-adapted version is available at [`.cursorrules`](./.cursorrules).
+Copy the contents of [`skills/v2.0.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or `.windsurfrules` file. A pre-adapted
+version is available at [`.cursorrules`](./.cursorrules).
 
 ### VS Code Copilot
 
@@ -179,5 +178,5 @@ MIT © Alexander Herrera
 
 ## 🙏 Acknowledgments
 
-Inspired by the best practices of the Conventional Commits specification, semantic-release, and the defensive
-engineering principles of the AI agent safety community.
+Inspired by the best practices of the Conventional Commits specification, semantic-release, and the defensive engineering principles of the AI agent
+safety community.

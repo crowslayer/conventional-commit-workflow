@@ -1,28 +1,22 @@
 # Conventional Commit Workflow
 
-An agent skill for analyzing Git changes, proposing atomic commits, validating Conventional Commit messages, and
-evaluating release impact using each repository's actual conventions and configuration.
+An agent skill for analyzing Git changes, proposing atomic commits, validating Conventional Commit messages, and evaluating release impact using each
+repository's actual conventions and configuration.
 
 ## Features
 
-- **Git change analysis:** Inspects staged, unstaged, and untracked changes while preserving existing user work and
-  staging decisions.
+- **Git change analysis:** Inspects staged, unstaged, and untracked changes while preserving existing user work and staging decisions.
 - **Atomic commit proposals:** Groups related changes into coherent, independently reviewable commits.
-- **Repository-aware conventions:** Discovers accepted commit types, scopes, message formats, validation rules, and
-  repository-specific instructions.
-- **Release impact analysis:** Evaluates PATCH, MINOR, MAJOR, NO RELEASE, or UNKNOWN outcomes using the effective
-  release configuration.
-- **Breaking change detection:** Identifies potentially breaking changes and evaluates them against the configured
-  release analyzer.
-- **Targeted validation:** Identifies and executes applicable tests, linting, type checking, and architectural checks
-  when required or requested.
+- **Repository-aware conventions:** Discovers accepted commit types, scopes, message formats, validation rules, and repository-specific instructions.
+- **Release impact analysis:** Evaluates PATCH, MINOR, MAJOR, NO RELEASE, or UNKNOWN outcomes using the effective release configuration.
+- **Breaking change detection:** Identifies potentially breaking changes and evaluates them against the configured release analyzer.
+- **Targeted validation:** Identifies and executes applicable tests, linting, type checking, and architectural checks when required or requested.
 - **Architecture awareness:** Considers DDD, Hexagonal Architecture, and CQRS when established by the repository.
-- **Polyglot and monorepo support:** Relates changes and validation requirements to affected components, regardless of
-  language or module structure.
-- **Execution safety:** Separates analysis, preparation, validation, and commit execution, requiring explicit
-  authorization before modifying the Git index or creating commits.
-- **Evidence-based reporting:** Distinguishes configured policies, observed conventions, executed checks,
-  recommendations, and unresolved uncertainties.
+- **Polyglot and monorepo support:** Relates changes and validation requirements to affected components, regardless of language or module structure.
+- **Execution safety:** Separates analysis, preparation, validation, and commit execution, requiring explicit authorization before modifying the Git
+  index or creating commits.
+- **Evidence-based reporting:** Distinguishes configured policies, observed conventions, executed checks, recommendations, and unresolved
+  uncertainties.
 
 ## How it works
 
@@ -30,16 +24,13 @@ The skill follows a structured workflow:
 
 1. **Detect intent:** Determines whether the request concerns commit analysis, preparation, validation, or execution.
 2. **Inspect Git state:** Captures the initial repository status and examines staged, unstaged, and untracked changes.
-3. **Discover repository policies:** Identifies applicable instructions, toolchains, commit conventions, validation
-   requirements, and release configuration.
-4. **Classify changes:** Identifies independent responsibilities and groups related modifications into atomic commit
-   proposals.
+3. **Discover repository policies:** Identifies applicable instructions, toolchains, commit conventions, validation requirements, and release
+   configuration.
+4. **Classify changes:** Identifies independent responsibilities and groups related modifications into atomic commit proposals.
 5. **Prepare messages:** Generates Conventional Commit messages consistent with the repository's actual conventions.
-6. **Evaluate release impact:** Applies the effective release analyzer when available and identifies breaking changes
-   and uncertainties.
+6. **Evaluate release impact:** Applies the effective release analyzer when available and identifies breaking changes and uncertainties.
 7. **Validate:** Runs only the required or justified checks and reports their actual results.
-8. **Execute when authorized:** Stages explicitly authorized changes, respects mandatory hooks, creates commits, and
-   verifies their results.
+8. **Execute when authorized:** Stages explicitly authorized changes, respects mandatory hooks, creates commits, and verifies their results.
 
 ## Operating modes
 
@@ -52,8 +43,7 @@ The skill supports four operating modes:
 | Validate | Execute applicable quality checks and message validation.   |
 | Execute  | Stage authorized changes and create commits.                |
 
-Analysis and preparation do not modify the repository. Validation is subject to the safety restrictions documented in
-`SKILL.md`.
+Analysis and preparation do not modify the repository. Validation is subject to the safety restrictions documented in `SKILL.md`.
 
 Commit execution always requires explicit user authorization.
 
@@ -61,13 +51,11 @@ Commit execution always requires explicit user authorization.
 
 The skill does not assume a particular language, package manager, architecture, directory layout, or release tool.
 
-It discovers the effective repository configuration using relevant manifests, scripts, documentation, CI workflows,
-hooks, and release configuration.
+It discovers the effective repository configuration using relevant manifests, scripts, documentation, CI workflows, hooks, and release configuration.
 
 Examples include:
 
-- **JavaScript / TypeScript:** `package.json`, lockfiles, workspace configuration, ESLint, Prettier, and TypeScript
-  configuration.
+- **JavaScript / TypeScript:** `package.json`, lockfiles, workspace configuration, ESLint, Prettier, and TypeScript configuration.
 - **Python:** `pyproject.toml`, `tox.ini`, Ruff, Black, mypy, and pytest configuration.
 - **Rust:** `Cargo.toml`, `Cargo.lock`, workspace manifests, rustfmt, and Clippy.
 - **Go:** `go.mod`, `go.work`, and repository validation scripts.
@@ -76,16 +64,15 @@ Examples include:
 
 These are discovery examples, not mandatory dependencies.
 
-The skill supports polyglot repositories and monorepos by identifying the components affected by each change and
-applying only the relevant validation requirements.
+The skill supports polyglot repositories and monorepos by identifying the components affected by each change and applying only the relevant validation
+requirements.
 
 ## Release compatibility
 
-Release impact is determined by the repository's effective release configuration, not merely by the Conventional Commit
-type.
+Release impact is determined by the repository's effective release configuration, not merely by the Conventional Commit type.
 
-When semantic-release or another release analyzer is configured, the skill evaluates its actual rules, including custom
-release rules and breaking-change handling.
+When semantic-release or another release analyzer is configured, the skill evaluates its actual rules, including custom release rules and
+breaking-change handling.
 
 Possible classifications:
 
@@ -97,8 +84,8 @@ Possible classifications:
 
 When release configuration is absent or incomplete, the skill reports uncertainty instead of promising a release.
 
-Individual commit classification is distinguished from actual release publication, which may depend on branches, tags,
-release ranges, and CI conditions.
+Individual commit classification is distinguished from actual release publication, which may depend on branches, tags, release ranges, and CI
+conditions.
 
 ## Safety principles
 
@@ -194,8 +181,7 @@ conventional-commit-workflow/
 └── LICENSE
 ```
 
-- `SKILL.md` — Complete agent instructions, operating modes, safety rules, validation workflow, and reporting
-  requirements.
+- `SKILL.md` — Complete agent instructions, operating modes, safety rules, validation workflow, and reporting requirements.
 - `README.md` — Overview, features, installation, compatibility, and usage.
 - `CHANGELOG.md` — Version history and notable changes.
 - `LICENSE` — MIT License.

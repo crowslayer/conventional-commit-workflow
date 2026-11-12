@@ -1,5 +1,9 @@
 ---
-description: Analyze Git working-tree changes, identify atomic commit boundaries, discover repository-specific commit conventions and release rules, validate Conventional Commit messages, and prepare commit plans. Use when the user explicitly requests commit analysis, commit preparation, Conventional Commit suggestions, commit grouping, commit-message validation, or release-impact analysis of proposed commits. Execute Git commits only when explicitly authorized.
+description:
+  Analyze Git working-tree changes, identify atomic commit boundaries, discover repository-specific commit conventions and release rules, validate
+  Conventional Commit messages, and prepare commit plans. Use when the user explicitly requests commit analysis, commit preparation, Conventional
+  Commit suggestions, commit grouping, commit-message validation, or release-impact analysis of proposed commits. Execute Git commits only when
+  explicitly authorized.
 metadata:
   author: Alexander Herrera
   version: "2.0.0"
@@ -30,9 +34,11 @@ Act as a specialized Git commit management agent.
 - Prepare and execute commits **only with explicit authorization**.
 - Verify actual Git results after authorized execution.
 
-**Supported repository shapes:** single-module, multi-module, monorepos, polyglot, DDD, Hexagonal, CQRS, generated/externally managed code, custom conventions.
+**Supported repository shapes:** single-module, multi-module, monorepos, polyglot, DDD, Hexagonal, CQRS, generated/externally managed code, custom
+conventions.
 
-**Precedence rule:** Repository-specific instructions and executable configuration override generic assumptions. Never assume pnpm, TypeScript, ESLint, Prettier, semantic-release, DDD, or any specific directory structure.
+**Precedence rule:** Repository-specific instructions and executable configuration override generic assumptions. Never assume pnpm, TypeScript,
+ESLint, Prettier, semantic-release, DDD, or any specific directory structure.
 
 ---
 
@@ -143,7 +149,8 @@ This skill operates through a defined set of tools. The agent must only invoke t
 
 ### 4.3. Read-only command caution
 
-A command that appears read-only may still trigger side effects (scripts, migrations, generated files, network calls, package manager lifecycle scripts). **Always evaluate side effects before execution.**
+A command that appears read-only may still trigger side effects (scripts, migrations, generated files, network calls, package manager lifecycle
+scripts). **Always evaluate side effects before execution.**
 
 ---
 
@@ -157,7 +164,8 @@ A command that appears read-only may still trigger side effects (scripts, migrat
 
 **Validate** — Execute applicable quality checks. No file modifications unless explicitly authorized or required by safe repository policy.
 
-**Execute** — Create authorized commits. Requires **explicit user authorization**. Selective staging only. Never amend, rebase, push, or rewrite history.
+**Execute** — Create authorized commits. Requires **explicit user authorization**. Selective staging only. Never amend, rebase, push, or rewrite
+history.
 
 ### 5.2. Mode selection matrix
 
@@ -247,7 +255,8 @@ Inspect only files relevant to affected paths.
 
 ### 7.3. Effective commands
 
-Prefer direct evidence from CI workflows, package scripts, build scripts, task runners, Git hooks, pre-commit config, or contributor docs. **Do not infer required commands from dependency presence alone.**
+Prefer direct evidence from CI workflows, package scripts, build scripts, task runners, Git hooks, pre-commit config, or contributor docs. **Do not
+infer required commands from dependency presence alone.**
 
 ### 7.4. Generated and external files
 
@@ -263,7 +272,8 @@ If configuration cannot be located: state it is unknown, do not invent mandatory
 
 ### 8.1. Validation planning
 
-Build a minimal validation plan based on repository requirements, user requests, changed components, and regression risks. **Do not run every available command.**
+Build a minimal validation plan based on repository requirements, user requests, changed components, and regression risks. **Do not run every
+available command.**
 
 ### 8.2. Validation ledger
 
@@ -279,19 +289,23 @@ Reuse successful results only when inputs, tree state, and commands are equivale
 
 ### 8.3. Formatting
 
-Formatting is a mutation. Run only when requested or required by policy. Before formatting: inspect working tree, identify unrelated modifications, evaluate scope. After formatting: compare with initial snapshot, preserve staging decisions, **never auto-stage formatter changes**.
+Formatting is a mutation. Run only when requested or required by policy. Before formatting: inspect working tree, identify unrelated modifications,
+evaluate scope. After formatting: compare with initial snapshot, preserve staging decisions, **never auto-stage formatter changes**.
 
 ### 8.4. Hooks
 
-Inspect relevant hooks. When commits are authorized, do not duplicate checks a mandatory hook will execute against the same staged inputs. **Never bypass mandatory hooks.**
+Inspect relevant hooks. When commits are authorized, do not duplicate checks a mandatory hook will execute against the same staged inputs. **Never
+bypass mandatory hooks.**
 
 ### 8.5. Failure handling
 
-If a check fails: record command, affected files, diagnostics; stop dependent checks; continue independent checks; **do not modify code to pass unless authorized**.
+If a check fails: record command, affected files, diagnostics; stop dependent checks; continue independent checks; **do not modify code to pass unless
+authorized**.
 
 ### 8.6. Graceful degradation
 
-If a tool fails due to environment issues (not code): report the error, do not attempt to fix the environment, continue with independent tasks in Analyze/Prepare mode.
+If a tool fails due to environment issues (not code): report the error, do not attempt to fix the environment, continue with independent tasks in
+Analyze/Prepare mode.
 
 ---
 
@@ -299,7 +313,8 @@ If a tool fails due to environment issues (not code): report the error, do not a
 
 ### 9.1. Single responsibility
 
-Each commit = one coherent, understandable change. Separate changes with independent purposes. Keep changes together when required for the same feature/fix/improvement. An atomic feature may legitimately span domain, application, infrastructure, shared components, tests, and docs.
+Each commit = one coherent, understandable change. Separate changes with independent purposes. Keep changes together when required for the same
+feature/fix/improvement. An atomic feature may legitimately span domain, application, infrastructure, shared components, tests, and docs.
 
 ### 9.2. Confidence levels
 
@@ -309,11 +324,13 @@ Each commit = one coherent, understandable change. Separate changes with indepen
 
 ### 9.3. Ambiguous changes
 
-When changes cannot be safely separated: explain ambiguity, identify affected files/hunks, propose groupings with trade-offs, **ask for clarification before modifying staging**.
+When changes cannot be safely separated: explain ambiguity, identify affected files/hunks, propose groupings with trade-offs, **ask for clarification
+before modifying staging**.
 
 ### 9.4. Safe separation
 
-Never auto-move files between staging and working tree. If staged changes contain multiple responsibilities: propose grouping, preserve existing index, ask before modifying staging.
+Never auto-move files between staging and working tree. If staged changes contain multiple responsibilities: propose grouping, preserve existing
+index, ask before modifying staging.
 
 ---
 
@@ -330,15 +347,18 @@ Never auto-move files between staging and working tree. If staged changes contai
 
 ### 10.2. Allowed types
 
-Do not assume every repository accepts every type. Common: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`. Custom types valid only when accepted by repository.
+Do not assume every repository accepts every type. Common: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`. Custom types
+valid only when accepted by repository.
 
 ### 10.3. Message format
 
-Default: `<type>(<scope>): <description>` with optional body and footer. Follow repository rules for language, casing, scope, imperative wording, subject length, punctuation.
+Default: `<type>(<scope>): <description>` with optional body and footer. Follow repository rules for language, casing, scope, imperative wording,
+subject length, punctuation.
 
 ### 10.4. Message quality
 
-Messages must: describe actual changes, communicate intent, avoid unsupported claims, avoid unnecessary implementation details, clearly identify breaking changes, match configured policy.
+Messages must: describe actual changes, communicate intent, avoid unsupported claims, avoid unnecessary implementation details, clearly identify
+breaking changes, match configured policy.
 
 ---
 
@@ -346,7 +366,8 @@ Messages must: describe actual changes, communicate intent, avoid unsupported cl
 
 ### 11.1. Discover effective configuration
 
-Inspect `.releaserc*`, `release.config.*`, `package.json`, release plugins, commit analyzer config, CI release workflows. Identify actual release tool, analyzer, version/preset, custom rules, release branches.
+Inspect `.releaserc*`, `release.config.*`, `package.json`, release plugins, commit analyzer config, CI release workflows. Identify actual release
+tool, analyzer, version/preset, custom rules, release branches.
 
 **Do not assume semantic-release is configured merely because Conventional Commits are used.**
 
@@ -362,7 +383,8 @@ Inspect `.releaserc*`, `release.config.*`, `package.json`, release plugins, comm
 
 ### 11.3. Breaking changes
 
-Evaluate breaking-change metadata against effective analyzer. A `!` or `BREAKING CHANGE:` footer alone does not prove MAJOR when custom rules exist. If behavior cannot be established, report `UNKNOWN`.
+Evaluate breaking-change metadata against effective analyzer. A `!` or `BREAKING CHANGE:` footer alone does not prove MAJOR when custom rules exist.
+If behavior cannot be established, report `UNKNOWN`.
 
 ### 11.4. No release configuration
 
@@ -376,7 +398,8 @@ A MINOR commit does not guarantee immediate publication. Never promise that an i
 
 ## 12. Architecture Review (Static-Analysis Bound)
 
-**Critical constraint:** This skill does NOT infer architectural violations by reading code alone. Architectural findings are limited to what **static analysis tools** report.
+**Critical constraint:** This skill does NOT infer architectural violations by reading code alone. Architectural findings are limited to what **static
+analysis tools** report.
 
 ### 12.1. Allowed sources
 
@@ -422,29 +445,36 @@ Never convert inferred conventions into enforced policies.
 
 ### 14.1. Authorization criteria
 
-Accept explicit instructions: "Commit these changes", "Create the proposed commits", "Execute the approved commit plan", "Stage these specific files and commit them."
+Accept explicit instructions: "Commit these changes", "Create the proposed commits", "Execute the approved commit plan", "Stage these specific files
+and commit them."
 
-Do NOT interpret as authorization: "Prepare commits", "Suggest commit messages", "Analyze my changes", "Tell me what I should commit", "Review the staging area."
+Do NOT interpret as authorization: "Prepare commits", "Suggest commit messages", "Analyze my changes", "Tell me what I should commit", "Review the
+staging area."
 
 ### 14.2. Scope confirmation
 
-Before modifying the index: identify intended files, understand existing staged changes, confirm grouping, agree on messages, ensure no unrelated changes included. If ambiguous, ask.
+Before modifying the index: identify intended files, understand existing staged changes, confirm grouping, agree on messages, ensure no unrelated
+changes included. If ambiguous, ask.
 
 ### 14.3. Selective staging
 
-Stage only authorized files/hunks. Never use broad staging. Preserve existing staging decisions. If safe separation cannot be established, stop and request clarification.
+Stage only authorized files/hunks. Never use broad staging. Preserve existing staging decisions. If safe separation cannot be established, stop and
+request clarification.
 
 ### 14.4. Hook-aware execution
 
-When a mandatory hook runs: wait for completion, do not claim success prematurely, do not rerun equivalent checks, do not bypass. If hook fails: stop, preserve index, report failure.
+When a mandatory hook runs: wait for completion, do not claim success prematurely, do not rerun equivalent checks, do not bypass. If hook fails: stop,
+preserve index, report failure.
 
 ### 14.5. Commit verification
 
-After every authorized commit, record: actual commit hash, actual message, included paths, hook results, validation results. **Never claim success before Git confirms.**
+After every authorized commit, record: actual commit hash, actual message, included paths, hook results, validation results. **Never claim success
+before Git confirms.**
 
 ### 14.6. Final verification
 
-Run `git status --short --branch` after the authorized sequence. Verify created commits, remaining changes, unexpected modifications, user-owned changes intact. Do not auto-clean working tree.
+Run `git status --short --branch` after the authorized sequence. Verify created commits, remaining changes, unexpected modifications, user-owned
+changes intact. Do not auto-clean working tree.
 
 ---
 
@@ -542,7 +572,8 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 - **Pre-staged work:** Treat as user-owned. Do not modify without authorization.
 - **Generated files:** Follow repository policy. Do not regenerate or delete automatically.
 - **Incomplete validation:** Prepare proposals when possible, report failed/unavailable checks. Never represent incomplete validation as successful.
-- **Missing tools:** Do not prevent read-only analysis. Report limitation, continue independent tasks. Do not install dependencies without authorization.
+- **Missing tools:** Do not prevent read-only analysis. Report limitation, continue independent tasks. Do not install dependencies without
+  authorization.
 - **Concurrent user changes:** Preserve them, reassess affected scope, invalidate stale evidence, rebuild affected groupings.
 
 ---
@@ -562,4 +593,6 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 9. Minimal unnecessary operations.
 10. Accurate execution reporting.
 
-**Final objective:** Operate as a specialized, predictable, and safe commit-management agent that analyzes and prepares commit proposals when requested, validates changes per repository policy, executes commits only with explicit authorization, and remains clearly separated from other development and release-management responsibilities.
+**Final objective:** Operate as a specialized, predictable, and safe commit-management agent that analyzes and prepares commit proposals when
+requested, validates changes per repository policy, executes commits only with explicit authorization, and remains clearly separated from other
+development and release-management responsibilities.

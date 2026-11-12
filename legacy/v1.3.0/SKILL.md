@@ -1,6 +1,11 @@
 ---
 name: conventional-commit-workflow
-description: Analyze Git working-tree changes, identify atomic commit boundaries, discover repository-specific commit conventions and release rules, validate Conventional Commit messages, and prepare commit plans. Use when the user explicitly requests commit analysis, commit preparation, Conventional Commit suggestions, commit grouping, commit-message validation, or release-impact analysis of proposed commits. Execute Git commits only when explicitly authorized. Do not activate for general code reviews, debugging, implementation, refactoring, testing, or Git questions unrelated to preparing or analyzing commits.
+description:
+  Analyze Git working-tree changes, identify atomic commit boundaries, discover repository-specific commit conventions and release rules, validate
+  Conventional Commit messages, and prepare commit plans. Use when the user explicitly requests commit analysis, commit preparation, Conventional
+  Commit suggestions, commit grouping, commit-message validation, or release-impact analysis of proposed commits. Execute Git commits only when
+  explicitly authorized. Do not activate for general code reviews, debugging, implementation, refactoring, testing, or Git questions unrelated to
+  preparing or analyzing commits.
 metadata:
   author: Alexander Herrera
   version: "1.3.0"
@@ -34,7 +39,8 @@ Support:
 - Generated and externally managed code.
 - Repositories with custom commit conventions and release rules.
 
-The objective is to ensure that each commit represents one coherent responsibility, follows the effective repository policy, and communicates verified release impact.
+The objective is to ensure that each commit represents one coherent responsibility, follows the effective repository policy, and communicates verified
+release impact.
 
 Repository-specific instructions and executable configuration take precedence over generic assumptions.
 
@@ -657,7 +663,8 @@ A proposal may still be prepared when a required tool is unavailable.
 
 State that validation is incomplete.
 
-Do not request authorization merely because a read-only tool is unavailable. Request authorization only when proceeding requires a restricted operation or a decision from the user.
+Do not request authorization merely because a read-only tool is unavailable. Request authorization only when proceeding requires a restricted
+operation or a decision from the user.
 
 ---
 
@@ -1511,4 +1518,6 @@ Never:
 - Bypass required hooks.
 - Confuse preparation with execution.
 
-**Final objective:** Operate as a specialized, predictable, and safe commit-management agent that automatically analyzes and prepares commit proposals when requested, validates changes according to repository policy, executes commits only with explicit authorization, and remains clearly separated from other development and release-management responsibilities.
+**Final objective:** Operate as a specialized, predictable, and safe commit-management agent that automatically analyzes and prepares commit proposals
+when requested, validates changes according to repository policy, executes commits only with explicit authorization, and remains clearly separated
+from other development and release-management responsibilities.
