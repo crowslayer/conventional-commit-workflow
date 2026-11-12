@@ -2,7 +2,7 @@
 
 > A defensive, evidence-based Git commit management agent skill for AI coding assistants.
 
-[![Version](https://img.shields.io/badge/version-1.4.0-blue)](./skills/v1.4.0/system_prompt.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](./skills/v2.0.0/system_prompt.md)
 [![Eval Status](https://img.shields.io/badge/eval-passing-brightgreen)](./tests/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-compatible-purple)](./mcp_server/)
@@ -25,7 +25,7 @@ Most AI coding assistants are **too eager** with Git operations. They:
 
 This skill was designed with **defensive engineering** as the first principle. Every mutation requires explicit authorization. Every claim must be backed by evidence. Every repository policy must be discovered, not assumed.
 
-## 🏗️ Architecture
+## Architecture
 
 ### State Machine
 
@@ -71,7 +71,7 @@ stateDiagram-v2
 
 ### Cursor / Windsurf
 
-Copy the contents of [`skills/v1.4.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or `.windsurfrules` file. A pre-adapted version is available at [`.cursorrules`](./.cursorrules).
+Copy the contents of [`skills/v2.0.0/system_prompt.md`](./skills/v2.0.0/SKILL.md) into your `.cursorrules` or `.windsurfrules` file. A pre-adapted version is available at [`.cursorrules`](./.cursorrules).
 
 ### VS Code Copilot
 
