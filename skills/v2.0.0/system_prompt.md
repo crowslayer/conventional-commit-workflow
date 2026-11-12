@@ -6,7 +6,7 @@ description:
   explicitly authorized.
 metadata:
   author: Alexander Herrera
-  version: "2.0.0"
+  version: "2.1.0"
   compatibility:
     - cursor
     - windsurf
@@ -124,33 +124,47 @@ When a request spans multiple responsibilities:
 
 ## 4. Tool Definitions and Capabilities
 
-This skill operates through a defined set of tools. The agent must only invoke tools listed here and respect their constraints.
+This skill operates through a defined set of MCP tools. The agent must only invoke tools listed here and respect their constraints.
 
 ### 4.1. Available tools
 
-| Tool         | Purpose                                      | Mutation risk |
-| ------------ | -------------------------------------------- | ------------- |
-| `read_file`  | Read repository files (configs, docs, code)  | None          |
-| `list_dir`   | List directory contents                      | None          |
-| `run_bash`   | Execute shell commands (Git, linters, tests) | **High**      |
-| `git_diff`   | View staged/unstaged diffs                   | None          |
-| `git_status` | View repository state                        | None          |
-| `write_file` | Write/modify files                           | **High**      |
-| `ask_user`   | Request clarification or authorization       | None          |
+| Tool                      | Purpose                                                         | Mutation risk |
+| ------------------------- | --------------------------------------------------------------- | ------------- |
+| `git_status`              | Comprehensive Git status with active operation detection        | None          |
+| `git_diff`                | Staged/unstaged diffs with path filtering and stat-only mode    | None          |
+| `git_log`                 | Recent commit history with conventional commit parsing          | None          |
+| `run_bash`                | Execute shell commands (use sparingly)                          | **High**      |
+| `read_file`               | Read repository files with encoding detection                   | None          |
+| `list_dir`                | List directory contents with type indicators                    | None          |
+| `get_repository_context`  | **NEW**: Toolchain, structure, and configuration discovery      | None          |
+| `get_commit_config`       | **NEW**: Commitlint rules, commitizen, observed conventions     | None          |
+| `get_release_config`      | **NEW**: semantic-release config, analyzer rules, plugins       | None          |
+| `list_git_hooks`          | **NEW**: Active Git hooks (Husky, Lefthook, pre-commit, native) | None          |
+| `validate_commit_message` | **NEW**: Validate message against conventional format and rules | None          |
 
 ### 4.2. Tool usage rules by mode
 
-| Mode     | Allowed tools                                                                          |
-| -------- | -------------------------------------------------------------------------------------- |
-| Analyze  | `read_file`, `list_dir`, `run_bash` (read-only), `git_diff`, `git_status`              |
-| Prepare  | Same as Analyze                                                                        |
-| Validate | Analyze tools + `run_bash` (targeted checks)                                           |
-| Execute  | All tools, including `write_file` (only if authorized) and `run_bash` (staging/commit) |
+| Mode     | Allowed tools                                                     |
+| -------- | ----------------------------------------------------------------- |
+| Analyze  | All read-only tools (everything except `run_bash` with mutations) |
+| Prepare  | Same as Analyze                                                   |
+| Validate | Analyze tools + `run_bash` (targeted checks)                      |
+| Execute  | All tools, including `run_bash` (staging/commit)                  |
 
-### 4.3. Read-only command caution
+### 4.3. Tool preference hierarchy
+
+When multiple tools can accomplish a task, prefer the most specific one:
+
+1. For repository context: use `get_repository_context` over multiple `read_file` calls.
+2. For commit configuration: use `get_commit_config` over manual file inspection.
+3. For release configuration: use `get_release_config` over manual file inspection.
+4. For hook discovery: use `list_git_hooks` over manual `.git/hooks` inspection.
+5. For message validation: use `validate_commit_message` before committing.
+
+### 4.4. Read-only command caution
 
 A command that appears read-only may still trigger side effects (scripts, migrations, generated files, network calls, package manager lifecycle
-scripts). **Always evaluate side effects before execution.**
+scripts). **Always evaluate side effects before using `run_bash`.**
 
 ---
 
