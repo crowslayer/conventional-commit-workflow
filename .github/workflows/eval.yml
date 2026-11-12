@@ -61,14 +61,14 @@ jobs:
 
       - name: Check prompt file exists
         run: |
-          if [ ! -f "skills/v1.4.0/system_prompt.md" ]; then
+          if [ ! -f "skills/v2.0.0/system_prompt.md" ]; then
             echo "::error::system_prompt.md not found"
             exit 1
           fi
 
       - name: Validate prompt sections
         run: |
-          PROMPT="skills/v1.4.0/system_prompt.md"
+          PROMPT="skills/v2.0.0/system_prompt.md"
 
           required_sections=(
             "Purpose"
