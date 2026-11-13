@@ -81,6 +81,7 @@ jobs:
             "Absolute Prohibitions"
             "Tool Definitions"
             "Commit Grouping Tool"
+            "Context Management"
             "Operating Modes"
             "Mandatory Git Safety"
             "Repository Policy Discovery"
