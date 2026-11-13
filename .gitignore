@@ -40,6 +40,7 @@ desktop.ini
 # Cursor specific (optional, but good to keep local settings private)
 .cursor/
 .cursorignore
+.cursorrules
 
 # VS Code
 .vscode/*
