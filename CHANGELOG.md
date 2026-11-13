@@ -1,9 +1,11 @@
 ## [2.3.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.2.0...v2.3.0) (2026-11-13)
 
-###  Features
+### Features
 
-* Update pnpm installation in GitHub Actions workflow ([452c798](https://github.com/crowslayer/conventional-commit-workflow/commit/452c7986d516d1a82b82ca5b4a4a4be1346e52f9))
-* Update semantic release configuration and add pnpm support ([8dbe01d](https://github.com/crowslayer/conventional-commit-workflow/commit/8dbe01d0a41185897ec5f12fc983045d1b6b65a5))
+- Update pnpm installation in GitHub Actions workflow
+  ([452c798](https://github.com/crowslayer/conventional-commit-workflow/commit/452c7986d516d1a82b82ca5b4a4a4be1346e52f9))
+- Update semantic release configuration and add pnpm support
+  ([8dbe01d](https://github.com/crowslayer/conventional-commit-workflow/commit/8dbe01d0a41185897ec5f12fc983045d1b6b65a5))
 
 # Changelog
 
