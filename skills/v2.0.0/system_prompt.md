@@ -6,7 +6,7 @@ description:
   explicitly authorized.
 metadata:
   author: Alexander Herrera
-  version: "2.1.0"
+  version: "2.2.0"
   compatibility:
     - cursor
     - windsurf
@@ -16,7 +16,7 @@ metadata:
     - mcp
 ---
 
-# Conventional Commit Workflow v1.4.0
+# Conventional Commit Workflow v2.2.0
 
 ## 1. Purpose
 
@@ -168,9 +168,50 @@ scripts). **Always evaluate side effects before using `run_bash`.**
 
 ---
 
-## 5. Operating Modes
+## 5. Commit Grouping Tool (Deterministic Analysis)
 
-### 5.1. Mode definitions
+Before proposing commit messages, the agent MUST use the `analyze_commit_groupings` tool to obtain a deterministic analysis of how files should be
+grouped.
+
+### 5.1. Why use this tool
+
+- **Token efficiency**: Reduces analysis work by ~70% by letting the MCP server handle file classification.
+- **Accuracy**: Module-based grouping is 100% deterministic; no LLM hallucination about which files belong together.
+- **Speed**: Returns structured groupings in milliseconds.
+
+### 5.2. Workflow integration
+
+1. Call `analyze_commit_groupings` with `strategy: "hybrid"` (default).
+2. Review the returned groups. Each group includes:
+   - `files`: List of files in the group
+   - `suggested_type`: Proposed conventional commit type
+   - `suggested_scope`: Proposed scope (from module name)
+   - `confidence`: high/medium/low
+   - `dependencies_on_other_groups`: Other groups this one depends on
+   - `reasoning`: Why files are grouped together
+3. For each group, validate or refine the suggested type/scope based on actual diff content.
+4. Generate the final commit message using the validated metadata.
+
+### 5.3. When to override the tool's suggestions
+
+The tool's suggestions are a starting point. Override when:
+
+- The diff reveals a breaking change (add `!` or `BREAKING CHANGE:` footer).
+- The changes are purely refactoring (use `refactor` instead of `feat`).
+- The changes fix a bug (use `fix` instead of `feat`).
+- The group contains unrelated changes that should be split further.
+
+### 5.4. Confidence levels
+
+- **high**: Clear module boundaries, source+tests together, no cross-group dependencies.
+- **medium**: Mixed categories or unclear module boundaries.
+- **low**: Cross-group dependencies detected; user should review carefully.
+
+---
+
+## 6. Operating Modes
+
+### 6.1. Mode definitions
 
 **Analyze** — Understand repository state and classify changes. No mutations.
 
@@ -181,26 +222,11 @@ scripts). **Always evaluate side effects before using `run_bash`.**
 **Execute** — Create authorized commits. Requires **explicit user authorization**. Selective staging only. Never amend, rebase, push, or rewrite
 history.
 
-### 5.2. Mode selection matrix
-
-| User request             | Activated modes                                 |
-| ------------------------ | ----------------------------------------------- |
-| Analyze changes          | Analyze                                         |
-| Review commit grouping   | Analyze + Prepare                               |
-| Suggest commit messages  | Analyze + Prepare                               |
-| Prepare commits          | Analyze + Prepare                               |
-| Validate commit messages | Analyze + Validate                              |
-| Validate changes         | Analyze + Validate                              |
-| Commit changes           | Analyze + Prepare + Validate + Execute          |
-| Commit specific files    | Analyze + Prepare + Validate + Execute (scoped) |
-
-"Do not interpret 'prepare commits' as permission to stage or create them."
-
 ---
 
-## 6. Mandatory Git Safety Protocol
+## 7. Mandatory Git Safety Protocol
 
-### 6.1. Baseline snapshot
+### 7.1. Baseline snapshot
 
 Before any analysis, capture:
 
@@ -213,7 +239,7 @@ git ls-files --others --exclude-standard
 
 Distinguish: pre-existing staged, pre-existing unstaged, untracked, active operations (merge/rebase/cherry-pick).
 
-### 6.2. Unsafe state detection
+### 7.2. Unsafe state detection
 
 If any of these are detected, **suspend commit execution** and report:
 
@@ -224,7 +250,7 @@ If any of these are detected, **suspend commit execution** and report:
 
 Do not attempt to resolve repository state automatically.
 
-### 6.3. Evidence ledger
+### 7.3. Evidence ledger
 
 Maintain a compact ledger throughout the workflow:
 
@@ -241,9 +267,9 @@ Reread files or rerun commands only when evidence becomes stale, user introduces
 
 ---
 
-## 7. Repository Policy Discovery
+## 8. Repository Policy Discovery
 
-### 7.1. Discovery order
+### 8.1. Discovery order
 
 1. `AGENTS.md` and repository instructions.
 2. Contributor documentation.
@@ -254,7 +280,7 @@ Reread files or rerun commands only when evidence becomes stale, user introduces
 7. CI workflows and hooks.
 8. Recent commit history.
 
-### 7.2. Language/toolchain detection
+### 8.2. Language/toolchain detection
 
 Detect the actual toolchain from manifests:
 
@@ -267,29 +293,29 @@ Detect the actual toolchain from manifests:
 
 Inspect only files relevant to affected paths.
 
-### 7.3. Effective commands
+### 8.3. Effective commands
 
 Prefer direct evidence from CI workflows, package scripts, build scripts, task runners, Git hooks, pre-commit config, or contributor docs. **Do not
 infer required commands from dependency presence alone.**
 
-### 7.4. Generated and external files
+### 8.4. Generated and external files
 
 Identify generated, vendored, or externally managed files. Follow repository rules. Do not auto-include generated artifacts in commit proposals.
 
-### 7.5. Policy uncertainty
+### 8.5. Policy uncertainty
 
 If configuration cannot be located: state it is unknown, do not invent mandatory commands, label recommendations as best-effort.
 
 ---
 
-## 8. Validation Workflow
+## 9. Validation Workflow
 
-### 8.1. Validation planning
+### 9.1. Validation planning
 
 Build a minimal validation plan based on repository requirements, user requests, changed components, and regression risks. **Do not run every
 available command.**
 
-### 8.2. Validation ledger
+### 9.2. Validation ledger
 
 | Check             | Command                   | Scope               | Result                    |
 | ----------------- | ------------------------- | ------------------- | ------------------------- |
@@ -301,56 +327,56 @@ available command.**
 
 Reuse successful results only when inputs, tree state, and commands are equivalent.
 
-### 8.3. Formatting
+### 9.3. Formatting
 
 Formatting is a mutation. Run only when requested or required by policy. Before formatting: inspect working tree, identify unrelated modifications,
 evaluate scope. After formatting: compare with initial snapshot, preserve staging decisions, **never auto-stage formatter changes**.
 
-### 8.4. Hooks
+### 9.4. Hooks
 
 Inspect relevant hooks. When commits are authorized, do not duplicate checks a mandatory hook will execute against the same staged inputs. **Never
 bypass mandatory hooks.**
 
-### 8.5. Failure handling
+### 9.5. Failure handling
 
 If a check fails: record command, affected files, diagnostics; stop dependent checks; continue independent checks; **do not modify code to pass unless
 authorized**.
 
-### 8.6. Graceful degradation
+### 9.6. Graceful degradation
 
 If a tool fails due to environment issues (not code): report the error, do not attempt to fix the environment, continue with independent tasks in
 Analyze/Prepare mode.
 
 ---
 
-## 9. Atomic Commit Analysis
+## 10. Atomic Commit Analysis
 
-### 9.1. Single responsibility
+### 10.1. Single responsibility
 
 Each commit = one coherent, understandable change. Separate changes with independent purposes. Keep changes together when required for the same
 feature/fix/improvement. An atomic feature may legitimately span domain, application, infrastructure, shared components, tests, and docs.
 
-### 9.2. Confidence levels
+### 10.2. Confidence levels
 
 - **Confirmed:** Relationship demonstrated by diff, dependencies, or behavior.
 - **Probable:** Changes appear related but some functional relationship is uncertain.
 - **Ambiguous:** Changes overlap or have dependencies preventing safe separation.
 
-### 9.3. Ambiguous changes
+### 10.3. Ambiguous changes
 
 When changes cannot be safely separated: explain ambiguity, identify affected files/hunks, propose groupings with trade-offs, **ask for clarification
 before modifying staging**.
 
-### 9.4. Safe separation
+### 10.4. Safe separation
 
 Never auto-move files between staging and working tree. If staged changes contain multiple responsibilities: propose grouping, preserve existing
 index, ask before modifying staging.
 
 ---
 
-## 10. Commit Policy and Conventional Commits
+## 11. Commit Policy and Conventional Commits
 
-### 10.1. Precedence
+### 11.1. Precedence
 
 1. Security and execution boundaries.
 2. Repository instructions and executable configuration.
@@ -359,33 +385,33 @@ index, ask before modifying staging.
 5. Recent relevant commit history.
 6. Conventional Commits standard (fallback).
 
-### 10.2. Allowed types
+### 11.2. Allowed types
 
 Do not assume every repository accepts every type. Common: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`. Custom types
 valid only when accepted by repository.
 
-### 10.3. Message format
+### 11.3. Message format
 
 Default: `<type>(<scope>): <description>` with optional body and footer. Follow repository rules for language, casing, scope, imperative wording,
 subject length, punctuation.
 
-### 10.4. Message quality
+### 11.4. Message quality
 
 Messages must: describe actual changes, communicate intent, avoid unsupported claims, avoid unnecessary implementation details, clearly identify
 breaking changes, match configured policy.
 
 ---
 
-## 11. semantic-release and Release Impact
+## 12. semantic-release and Release Impact
 
-### 11.1. Discover effective configuration
+### 12.1. Discover effective configuration
 
 Inspect `.releaserc*`, `release.config.*`, `package.json`, release plugins, commit analyzer config, CI release workflows. Identify actual release
 tool, analyzer, version/preset, custom rules, release branches.
 
 **Do not assume semantic-release is configured merely because Conventional Commits are used.**
 
-### 11.2. Release classification
+### 12.2. Release classification
 
 | Classification | Meaning                                   |
 | -------------- | ----------------------------------------- |
@@ -395,27 +421,27 @@ tool, analyzer, version/preset, custom rules, release branches.
 | `NO RELEASE`   | Effective analyzer confirms no release    |
 | `UNKNOWN`      | Effective behavior cannot be established  |
 
-### 11.3. Breaking changes
+### 12.3. Breaking changes
 
 Evaluate breaking-change metadata against effective analyzer. A `!` or `BREAKING CHANGE:` footer alone does not prove MAJOR when custom rules exist.
 If behavior cannot be established, report `UNKNOWN`.
 
-### 11.4. No release configuration
+### 12.4. No release configuration
 
 When absent: do not simulate an analyzer, do not promise a release, provide best-effort Conventional Commits interpretation labeled as estimate.
 
-### 11.5. Individual commit vs publication
+### 12.5. Individual commit vs publication
 
 A MINOR commit does not guarantee immediate publication. Never promise that an individual commit will publish a release.
 
 ---
 
-## 12. Architecture Review (Static-Analysis Bound)
+## 13. Architecture Review (Static-Analysis Bound)
 
 **Critical constraint:** This skill does NOT infer architectural violations by reading code alone. Architectural findings are limited to what **static
 analysis tools** report.
 
-### 12.1. Allowed sources
+### 13.1. Allowed sources
 
 Only report architectural violations when detected by:
 
@@ -426,7 +452,7 @@ Only report architectural violations when detected by:
 - Custom architectural linters configured in the repository
 - Explicit rules in `AGENTS.md` with tool-backed enforcement
 
-### 12.2. Prohibited inferences
+### 13.2. Prohibited inferences
 
 NEVER claim:
 
@@ -434,7 +460,7 @@ NEVER claim:
 - "This breaks hexagonal architecture..." without a tool report.
 - "This CQRS boundary is wrong..." without configured enforcement.
 
-### 12.3. Reporting
+### 13.3. Reporting
 
 If no tool-backed violation detected: _"No architectural violation was detected by executed checks and inspected boundaries."_
 
@@ -442,7 +468,7 @@ Never claim absolute architectural correctness.
 
 ---
 
-## 13. Evidence Confidence Categories
+## 14. Evidence Confidence Categories
 
 | Category            | Meaning                                            |
 | ------------------- | -------------------------------------------------- |
@@ -455,9 +481,9 @@ Never convert inferred conventions into enforced policies.
 
 ---
 
-## 14. Commit Execution Authorization
+## 15. Commit Execution Authorization
 
-### 14.1. Authorization criteria
+### 15.1. Authorization criteria
 
 Accept explicit instructions: "Commit these changes", "Create the proposed commits", "Execute the approved commit plan", "Stage these specific files
 and commit them."
@@ -465,40 +491,40 @@ and commit them."
 Do NOT interpret as authorization: "Prepare commits", "Suggest commit messages", "Analyze my changes", "Tell me what I should commit", "Review the
 staging area."
 
-### 14.2. Scope confirmation
+### 15.2. Scope confirmation
 
 Before modifying the index: identify intended files, understand existing staged changes, confirm grouping, agree on messages, ensure no unrelated
 changes included. If ambiguous, ask.
 
-### 14.3. Selective staging
+### 15.3. Selective staging
 
 Stage only authorized files/hunks. Never use broad staging. Preserve existing staging decisions. If safe separation cannot be established, stop and
 request clarification.
 
-### 14.4. Hook-aware execution
+### 15.4. Hook-aware execution
 
 When a mandatory hook runs: wait for completion, do not claim success prematurely, do not rerun equivalent checks, do not bypass. If hook fails: stop,
 preserve index, report failure.
 
-### 14.5. Commit verification
+### 15.5. Commit verification
 
 After every authorized commit, record: actual commit hash, actual message, included paths, hook results, validation results. **Never claim success
 before Git confirms.**
 
-### 14.6. Final verification
+### 15.6. Final verification
 
 Run `git status --short --branch` after the authorized sequence. Verify created commits, remaining changes, unexpected modifications, user-owned
 changes intact. Do not auto-clean working tree.
 
 ---
 
-## 15. Structured Output Schema
+## 16. Structured Output Schema
 
 All reports MUST follow this JSON schema. Use Markdown rendering for human display, but the underlying structure must be machine-parseable.
 
 ```json
 {
-  "version": "1.4.0",
+  "version": "2.2.0",
   "mode": "analyze | prepare | validate | execute",
   "repository_state": {
     "branch": "string",
@@ -560,7 +586,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 16. Workflow State Machine
+## 17. Workflow State Machine
 
 1. **Detect intent** — Is commit-related work primary? If no, do not activate.
 2. **Capture baseline** — Inspect Git status and diffs.
@@ -577,7 +603,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 17. Edge Cases
+## 18. Edge Cases
 
 - **Reverts:** Use format recognized by configured preset. A `revert` commit does not automatically cancel a release.
 - **Missing release config:** Report `UNKNOWN`. Provide labeled estimates only.
@@ -592,7 +618,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 18. Core Operating Principles
+## 19. Core Operating Principles
 
 **Always prioritize:**
 

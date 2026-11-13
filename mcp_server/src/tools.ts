@@ -68,13 +68,29 @@ export const tools = [
       },
     },
   },
+  {
+    name: "analyze_commit_groupings",
+    description:
+      "Analyze Git changes and propose deterministic groupings based on module boundaries, file relationships, and change types. Returns structured commit groups with suggested types and scopes. Use this BEFORE generating commit messages to reduce token usage and improve grouping accuracy.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repository_path: { type: "string", description: "Repository root path" },
+        strategy: {
+          type: "string",
+          enum: ["modules", "files", "hybrid"],
+          description: "Grouping strategy: 'modules' (monorepo-focused), 'files' (by file type), 'hybrid' (recommended default)",
+        },
+      },
+    },
+  },
 ];
 
 export async function callTool(name: string, args: any) {
+  const cwd = args.repository_path || args.path || args.cwd || process.cwd();
   try {
     switch (name) {
       case "git_status": {
-        const cwd = args.path || process.cwd();
         const output = execSync("git status --short --branch", {
           cwd,
         }).toString();
@@ -82,14 +98,12 @@ export async function callTool(name: string, args: any) {
       }
 
       case "git_diff": {
-        const cwd = args.path || process.cwd();
         const cmd = args.staged ? "git diff --cached" : "git diff";
         const output = execSync(cmd, { cwd }).toString();
         return { content: [{ type: "text", text: output }] };
       }
 
       case "run_bash": {
-        const cwd = args.cwd || process.cwd();
         const output = execSync(args.command, { cwd }).toString();
         return { content: [{ type: "text", text: output }] };
       }
@@ -119,8 +133,6 @@ export async function callTool(name: string, args: any) {
       }
 
       case "analyze_commits": {
-        // This would invoke the full skill logic
-        // For now, return a placeholder
         return {
           content: [
             {
@@ -130,7 +142,12 @@ export async function callTool(name: string, args: any) {
           ],
         };
       }
-
+      case "analyze_commit_groupings": {
+        const { analyzeCommitGroupings } = await import("./grouping");
+        const strategy = args.strategy || "hybrid";
+        const analysis = analyzeCommitGroupings(cwd, strategy);
+        return { content: [{ type: "text", text: JSON.stringify(analysis, null, 2) }] };
+      }
       default:
         return {
           content: [{ type: "text", text: `Unknown tool: ${name}` }],

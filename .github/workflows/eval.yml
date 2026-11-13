@@ -80,6 +80,7 @@ jobs:
             "Purpose"
             "Absolute Prohibitions"
             "Tool Definitions"
+            "Commit Grouping Tool"
             "Operating Modes"
             "Mandatory Git Safety"
             "Repository Policy Discovery"

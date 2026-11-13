@@ -1,0 +1,79 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "✨ Features", "release": "minor" },
+            { "type": "fix", "section": "🐛 Bug Fixes", "release": "patch" },
+            { "type": "perf", "section": "⚡ Performance", "release": "patch" },
+            { "type": "refactor", "section": "♻️ Refactoring", "release": "patch" },
+            { "type": "docs", "section": "📚 Documentation", "release": false },
+            { "type": "style", "section": "💄 Styles", "release": false },
+            { "type": "test", "section": "✅ Tests", "release": false },
+            { "type": "build", "section": "📦 Build", "release": false },
+            { "type": "ci", "section": "👷 CI/CD", "release": false },
+            { "type": "chore", "section": "🔧 Chores", "release": false },
+            { "type": "revert", "section": "⏪ Reverts", "release": "patch" }
+          ]
+        },
+        "releaseRules": [
+          { "breaking": true, "release": "major" },
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": " Features", "hidden": false },
+            { "type": "fix", "section": " Bug Fixes", "hidden": false },
+            { "type": "perf", "section": " Performance", "hidden": false },
+            { "type": "refactor", "section": " Refactoring", "hidden": false },
+            { "type": "docs", "section": " Documentation", "hidden": false },
+            { "type": "test", "section": " Tests", "hidden": false },
+            { "type": "build", "section": " Build", "hidden": false },
+            { "type": "ci", "section": " CI/CD", "hidden": false },
+            { "type": "chore", "hidden": true },
+            { "type": "style", "hidden": true }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false,
+        "pkgRoot": "./mcp_server"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "mcp_server/package.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [{ "path": "mcp_server/dist/**/*.js", "label": "MCP Server Distribution" }]
+      }
+    ]
+  ]
+}

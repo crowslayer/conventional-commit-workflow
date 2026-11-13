@@ -4,6 +4,29 @@ All notable changes to Conventional Commit Workflow are documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## [2.2.0] - 2026-11-13
+
+### Added
+
+- **`analyze_commit_groupings` tool**: Deterministic commit grouping engine that analyzes Git changes and proposes structured commit groups based on
+  module boundaries, file relationships, and change types.
+- **Monorepo detection**: Automatic detection of pnpm workspaces, npm workspaces, Lerna, Nx, Turborepo, Rush, and directory-based monorepos.
+- **File classification engine**: Categorizes files as source/test/doc/config/generated/asset with high accuracy.
+- **Test-source pairing**: Automatically associates test files with their corresponding source files.
+- **Inter-group dependency detection**: Analyzes imports between changed files to identify commit ordering requirements.
+- **Commit metadata suggestions**: Suggests type and scope based on file categories and module structure.
+- **Multi-language support**: Import detection works for JavaScript/TypeScript, Python, Java, and more.
+
+### Changed
+
+- **Token efficiency**: LLM now validates 3-5 deterministic groups instead of analyzing 50+ files directly (~70% token savings).
+- **Workflow integration**: Added Section 5 to system_prompt.md documenting the new grouping tool workflow.
+
+### Security & Safety
+
+- **Buffer-safe file reading**: All file operations use safe wrappers with error handling.
+- **Graceful degradation**: Returns partial results if some files cannot be read.
+
 ## [2.1.0] - 2026-11-13
 
 ### ✨ Added
