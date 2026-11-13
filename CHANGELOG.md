@@ -1,3 +1,9 @@
+## [2.4.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.3.0...v2.4.0) (2026-11-13)
+
+###  Features
+
+* **mcp:** add massive diff chunking system ([286f9c9](https://github.com/crowslayer/conventional-commit-workflow/commit/286f9c9333a9673a6e483112ccbc91a19e5fec8b))
+
 ## [2.3.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.2.0...v2.3.0) (2026-11-13)
 
 ### Features
