@@ -7,17 +7,17 @@
         "preset": "conventionalcommits",
         "presetConfig": {
           "types": [
-            { "type": "feat", "section": "✨ Features", "release": "minor" },
-            { "type": "fix", "section": "🐛 Bug Fixes", "release": "patch" },
-            { "type": "perf", "section": "⚡ Performance", "release": "patch" },
-            { "type": "refactor", "section": "♻️ Refactoring", "release": "patch" },
-            { "type": "docs", "section": "📚 Documentation", "release": false },
-            { "type": "style", "section": "💄 Styles", "release": false },
-            { "type": "test", "section": "✅ Tests", "release": false },
-            { "type": "build", "section": "📦 Build", "release": false },
-            { "type": "ci", "section": "👷 CI/CD", "release": false },
-            { "type": "chore", "section": "🔧 Chores", "release": false },
-            { "type": "revert", "section": "⏪ Reverts", "release": "patch" }
+            { "type": "feat", "section": " Features", "release": "minor" },
+            { "type": "fix", "section": " Bug Fixes", "release": "patch" },
+            { "type": "perf", "section": " Performance", "release": "patch" },
+            { "type": "refactor", "section": " Refactoring", "release": "patch" },
+            { "type": "docs", "section": " Documentation", "release": false },
+            { "type": "style", "section": " Styles", "release": false },
+            { "type": "test", "section": " Tests", "release": false },
+            { "type": "build", "section": " Build", "release": false },
+            { "type": "ci", "section": " CI/CD", "release": false },
+            { "type": "chore", "section": " Chores", "release": false },
+            { "type": "revert", "section": " Reverts", "release": "patch" }
           ]
         },
         "releaseRules": [
