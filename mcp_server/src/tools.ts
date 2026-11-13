@@ -1,6 +1,47 @@
 import { execSync } from "child_process";
 import { existsSync, readFileSync, readdirSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
+
+// ============================================
+// Helper Functions
+// ============================================
+
+function safeExec(command: string, cwd: string): { stdout: string; stderr: string; success: boolean } {
+  try {
+    const stdout = execSync(command, { cwd, encoding: "utf-8", maxBuffer: 10 * 1024 * 1024 });
+    return { stdout: stdout || "", stderr: "", success: true };
+  } catch (error: any) {
+    return {
+      stdout: error.stdout?.toString() || "",
+      stderr: error.stderr?.toString() || error.message,
+      success: false,
+    };
+  }
+}
+
+function safeReadFile(path: string): { content: string; exists: boolean; error?: string } {
+  try {
+    if (!existsSync(path)) {
+      return { content: "", exists: false, error: "File not found" };
+    }
+    const content = readFileSync(path, "utf-8");
+    return { content, exists: true };
+  } catch (error: any) {
+    return { content: "", exists: false, error: error.message };
+  }
+}
+
+function findFileUp(filename: string, startDir: string): string | null {
+  let currentDir = startDir;
+  while (currentDir !== dirname(currentDir)) {
+    const filePath = join(currentDir, filename);
+    if (existsSync(filePath)) {
+      return filePath;
+    }
+    currentDir = dirname(currentDir);
+  }
+  return null;
+}
 
 export const tools = [
   {
@@ -84,6 +125,37 @@ export const tools = [
       },
     },
   },
+  {
+    name: "get_diff_summary",
+    description:
+      "Get a summary of Git changes with file-level statistics. Automatically detects massive diffs and returns metadata instead of full content. Use this FIRST when analyzing changes to understand scope before requesting specific chunks.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repository_path: { type: "string", description: "Repository root path" },
+        staged: { type: "boolean", description: "Analyze staged changes (default: false)" },
+        path_filter: { type: "string", description: "Filter to specific file or directory" },
+        threshold: { type: "number", description: "Line threshold for massive diff detection (default: 2000)" },
+      },
+    },
+  },
+  {
+    name: "get_diff_chunk",
+    description:
+      "Retrieve a specific chunk of a diff by chunk_id. Use after get_diff_summary to inspect specific files or hunks without loading the entire diff.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repository_path: { type: "string", description: "Repository root path" },
+        chunk_id: {
+          type: "string",
+          description: "Chunk ID from get_diff_summary (format: 'file:path', 'hunk:path:index', 'directory:path', 'binary:path')",
+        },
+        staged: { type: "boolean", description: "Get chunk from staged changes" },
+      },
+      required: ["chunk_id"],
+    },
+  },
 ];
 
 export async function callTool(name: string, args: any) {
@@ -98,9 +170,47 @@ export async function callTool(name: string, args: any) {
       }
 
       case "git_diff": {
-        const cmd = args.staged ? "git diff --cached" : "git diff";
-        const output = execSync(cmd, { cwd }).toString();
-        return { content: [{ type: "text", text: output }] };
+        const { analyzeDiff } = await import("./chunking.js");
+        const threshold = args.threshold || 2000;
+        const analysis = analyzeDiff(cwd, args.staged || false, args.path, threshold);
+
+        // If massive, return summary with instructions
+        if (analysis.is_massive) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(
+                  {
+                    _warning: "MASSIVE DIFF DETECTED",
+                    _message: `This diff has ${analysis.total_lines_changed} lines changed across ${analysis.total_files} files, exceeding the threshold of ${threshold} lines. Use get_diff_summary for full metadata, then get_diff_chunk to inspect specific parts.`,
+                    analysis,
+                    _instructions: {
+                      step_1: "Review the analysis.files array to identify relevant files",
+                      step_2: "Use get_diff_chunk with chunk_id from analysis.files[].chunk_ids",
+                      step_3: "Chunk ID formats: 'file:path', 'hunk:path:index', 'directory:path'",
+                    },
+                  },
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
+        }
+
+        // Otherwise, return stat or full diff
+        if (args.stat_only) {
+          const result = safeExec(`git diff ${args.staged ? "--cached" : ""} --stat${args.path ? ` -- ${args.path}` : ""}`, cwd);
+          return {
+            content: [{ type: "text", text: result.stdout || "(no changes)" }],
+          };
+        }
+
+        const result = safeExec(`git diff ${args.staged ? "--cached" : ""}${args.path ? ` -- ${args.path}` : ""}`, cwd);
+        return {
+          content: [{ type: "text", text: result.stdout || "(no changes)" }],
+        };
       }
 
       case "run_bash": {
@@ -148,6 +258,30 @@ export async function callTool(name: string, args: any) {
         const analysis = analyzeCommitGroupings(cwd, strategy);
         return { content: [{ type: "text", text: JSON.stringify(analysis, null, 2) }] };
       }
+
+      case "get_diff_summary": {
+        const { analyzeDiff } = await import("./chunking.js");
+        const threshold = args.threshold || 2000;
+        const analysis = analyzeDiff(cwd, args.staged || false, args.path_filter, threshold);
+        return { content: [{ type: "text", text: JSON.stringify(analysis, null, 2) }] };
+      }
+
+      case "get_diff_chunk": {
+        const { getChunk } = await import("./chunking.js");
+        const chunk = getChunk({
+          repository_path: cwd,
+          chunk_id: args.chunk_id,
+          staged: args.staged || false,
+        });
+        if (!chunk) {
+          return {
+            content: [{ type: "text", text: `Chunk not found: ${args.chunk_id}` }],
+            isError: true,
+          };
+        }
+        return { content: [{ type: "text", text: JSON.stringify(chunk, null, 2) }] };
+      }
+
       default:
         return {
           content: [{ type: "text", text: `Unknown tool: ${name}` }],

@@ -6,7 +6,7 @@ description:
   explicitly authorized.
 metadata:
   author: Alexander Herrera
-  version: "2.2.0"
+  version: "2.3.0"
   compatibility:
     - cursor
     - windsurf
@@ -16,7 +16,7 @@ metadata:
     - mcp
 ---
 
-# Conventional Commit Workflow v2.2.0
+# Conventional Commit Workflow v2.3.0
 
 ## 1. Purpose
 
@@ -209,9 +209,53 @@ The tool's suggestions are a starting point. Override when:
 
 ---
 
-## 6. Operating Modes
+## 6. Context Management for Massive Diffs
 
-### 6.1. Mode definitions
+When analyzing repositories with large changes (refactorizaciones, monorepo updates, migrations), the agent MUST use the chunking system to avoid
+saturating the context window.
+
+### 6.1. Automatic detection
+
+The `git_diff` tool automatically detects massive diffs (default threshold: 2000 lines). When triggered, it returns a structured warning with metadata
+instead of the full diff.
+
+### 6.2. Workflow for massive diffs
+
+1. Call `git_diff` (or `get_diff_summary` directly) to get the analysis.
+2. Review the `analysis.files` array to identify:
+   - Files with the most changes
+   - Files relevant to the user's request
+   - Binary files (which cannot be chunked)
+3. Use `get_diff_chunk` with specific `chunk_id` values to inspect relevant parts.
+4. Chunk ID formats:
+   - `file:<path>` - Full diff of a single file
+   - `hunk:<path>:<index>` - Specific hunk within a file (0-indexed)
+   - `directory:<path>` - All changes in a directory
+   - `binary:<path>` - Metadata for binary files
+
+### 6.3. Recommended strategies
+
+The analysis includes a `recommended_strategy` field:
+
+- **by-file**: Use when changes are spread across many small files. Request `file:<path>` chunks.
+- **by-directory**: Use when changes are concentrated in a few directories. Request `directory:<path>` chunks.
+- **by-hunk**: Use when a few files have massive changes. Request `hunk:<path>:<index>` chunks.
+
+### 6.4. Context budget awareness
+
+- Never request more than 3-4 chunks in a single analysis pass.
+- Prioritize chunks based on the user's request (e.g., if they mention "auth", prioritize auth-related chunks).
+- If the user asks for a full review, process chunks iteratively and summarize findings.
+
+### 6.5. When NOT to use chunking
+
+- Small diffs (< 2000 lines): use `git_diff` normally.
+- Single-file changes: the file is small enough to read entirely.
+- When the user explicitly requests the full diff (warn them about context limits).
+
+## 7. Operating Modes
+
+### 7.1. Mode definitions
 
 **Analyze** — Understand repository state and classify changes. No mutations.
 
@@ -224,9 +268,9 @@ history.
 
 ---
 
-## 7. Mandatory Git Safety Protocol
+## 8. Mandatory Git Safety Protocol
 
-### 7.1. Baseline snapshot
+### 8.1. Baseline snapshot
 
 Before any analysis, capture:
 
@@ -239,7 +283,7 @@ git ls-files --others --exclude-standard
 
 Distinguish: pre-existing staged, pre-existing unstaged, untracked, active operations (merge/rebase/cherry-pick).
 
-### 7.2. Unsafe state detection
+### 8.2. Unsafe state detection
 
 If any of these are detected, **suspend commit execution** and report:
 
@@ -250,7 +294,7 @@ If any of these are detected, **suspend commit execution** and report:
 
 Do not attempt to resolve repository state automatically.
 
-### 7.3. Evidence ledger
+### 8.3. Evidence ledger
 
 Maintain a compact ledger throughout the workflow:
 
@@ -267,9 +311,9 @@ Reread files or rerun commands only when evidence becomes stale, user introduces
 
 ---
 
-## 8. Repository Policy Discovery
+## 9. Repository Policy Discovery
 
-### 8.1. Discovery order
+### 9.1. Discovery order
 
 1. `AGENTS.md` and repository instructions.
 2. Contributor documentation.
@@ -280,7 +324,7 @@ Reread files or rerun commands only when evidence becomes stale, user introduces
 7. CI workflows and hooks.
 8. Recent commit history.
 
-### 8.2. Language/toolchain detection
+### 9.2. Language/toolchain detection
 
 Detect the actual toolchain from manifests:
 
@@ -293,29 +337,29 @@ Detect the actual toolchain from manifests:
 
 Inspect only files relevant to affected paths.
 
-### 8.3. Effective commands
+### 9.3. Effective commands
 
 Prefer direct evidence from CI workflows, package scripts, build scripts, task runners, Git hooks, pre-commit config, or contributor docs. **Do not
 infer required commands from dependency presence alone.**
 
-### 8.4. Generated and external files
+### 9.4. Generated and external files
 
 Identify generated, vendored, or externally managed files. Follow repository rules. Do not auto-include generated artifacts in commit proposals.
 
-### 8.5. Policy uncertainty
+### 9.5. Policy uncertainty
 
 If configuration cannot be located: state it is unknown, do not invent mandatory commands, label recommendations as best-effort.
 
 ---
 
-## 9. Validation Workflow
+## 10. Validation Workflow
 
-### 9.1. Validation planning
+### 10.1. Validation planning
 
 Build a minimal validation plan based on repository requirements, user requests, changed components, and regression risks. **Do not run every
 available command.**
 
-### 9.2. Validation ledger
+### 10.2. Validation ledger
 
 | Check             | Command                   | Scope               | Result                    |
 | ----------------- | ------------------------- | ------------------- | ------------------------- |
@@ -327,56 +371,56 @@ available command.**
 
 Reuse successful results only when inputs, tree state, and commands are equivalent.
 
-### 9.3. Formatting
+### 10.3. Formatting
 
 Formatting is a mutation. Run only when requested or required by policy. Before formatting: inspect working tree, identify unrelated modifications,
 evaluate scope. After formatting: compare with initial snapshot, preserve staging decisions, **never auto-stage formatter changes**.
 
-### 9.4. Hooks
+### 10.4. Hooks
 
 Inspect relevant hooks. When commits are authorized, do not duplicate checks a mandatory hook will execute against the same staged inputs. **Never
 bypass mandatory hooks.**
 
-### 9.5. Failure handling
+### 10.5. Failure handling
 
 If a check fails: record command, affected files, diagnostics; stop dependent checks; continue independent checks; **do not modify code to pass unless
 authorized**.
 
-### 9.6. Graceful degradation
+### 10.6. Graceful degradation
 
 If a tool fails due to environment issues (not code): report the error, do not attempt to fix the environment, continue with independent tasks in
 Analyze/Prepare mode.
 
 ---
 
-## 10. Atomic Commit Analysis
+## 11. Atomic Commit Analysis
 
-### 10.1. Single responsibility
+### 11.1. Single responsibility
 
 Each commit = one coherent, understandable change. Separate changes with independent purposes. Keep changes together when required for the same
 feature/fix/improvement. An atomic feature may legitimately span domain, application, infrastructure, shared components, tests, and docs.
 
-### 10.2. Confidence levels
+### 11.2. Confidence levels
 
 - **Confirmed:** Relationship demonstrated by diff, dependencies, or behavior.
 - **Probable:** Changes appear related but some functional relationship is uncertain.
 - **Ambiguous:** Changes overlap or have dependencies preventing safe separation.
 
-### 10.3. Ambiguous changes
+### 11.3. Ambiguous changes
 
 When changes cannot be safely separated: explain ambiguity, identify affected files/hunks, propose groupings with trade-offs, **ask for clarification
 before modifying staging**.
 
-### 10.4. Safe separation
+### 11.4. Safe separation
 
 Never auto-move files between staging and working tree. If staged changes contain multiple responsibilities: propose grouping, preserve existing
 index, ask before modifying staging.
 
 ---
 
-## 11. Commit Policy and Conventional Commits
+## 12. Commit Policy and Conventional Commits
 
-### 11.1. Precedence
+### 12.1. Precedence
 
 1. Security and execution boundaries.
 2. Repository instructions and executable configuration.
@@ -385,33 +429,33 @@ index, ask before modifying staging.
 5. Recent relevant commit history.
 6. Conventional Commits standard (fallback).
 
-### 11.2. Allowed types
+### 12.2. Allowed types
 
 Do not assume every repository accepts every type. Common: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`. Custom types
 valid only when accepted by repository.
 
-### 11.3. Message format
+### 12.3. Message format
 
 Default: `<type>(<scope>): <description>` with optional body and footer. Follow repository rules for language, casing, scope, imperative wording,
 subject length, punctuation.
 
-### 11.4. Message quality
+### 12.4. Message quality
 
 Messages must: describe actual changes, communicate intent, avoid unsupported claims, avoid unnecessary implementation details, clearly identify
 breaking changes, match configured policy.
 
 ---
 
-## 12. semantic-release and Release Impact
+## 13. semantic-release and Release Impact
 
-### 12.1. Discover effective configuration
+### 13.1. Discover effective configuration
 
 Inspect `.releaserc*`, `release.config.*`, `package.json`, release plugins, commit analyzer config, CI release workflows. Identify actual release
 tool, analyzer, version/preset, custom rules, release branches.
 
 **Do not assume semantic-release is configured merely because Conventional Commits are used.**
 
-### 12.2. Release classification
+### 13.2. Release classification
 
 | Classification | Meaning                                   |
 | -------------- | ----------------------------------------- |
@@ -421,27 +465,27 @@ tool, analyzer, version/preset, custom rules, release branches.
 | `NO RELEASE`   | Effective analyzer confirms no release    |
 | `UNKNOWN`      | Effective behavior cannot be established  |
 
-### 12.3. Breaking changes
+### 13.3. Breaking changes
 
 Evaluate breaking-change metadata against effective analyzer. A `!` or `BREAKING CHANGE:` footer alone does not prove MAJOR when custom rules exist.
 If behavior cannot be established, report `UNKNOWN`.
 
-### 12.4. No release configuration
+### 13.4. No release configuration
 
 When absent: do not simulate an analyzer, do not promise a release, provide best-effort Conventional Commits interpretation labeled as estimate.
 
-### 12.5. Individual commit vs publication
+### 13.5. Individual commit vs publication
 
 A MINOR commit does not guarantee immediate publication. Never promise that an individual commit will publish a release.
 
 ---
 
-## 13. Architecture Review (Static-Analysis Bound)
+## 14. Architecture Review (Static-Analysis Bound)
 
 **Critical constraint:** This skill does NOT infer architectural violations by reading code alone. Architectural findings are limited to what **static
 analysis tools** report.
 
-### 13.1. Allowed sources
+### 14.1. Allowed sources
 
 Only report architectural violations when detected by:
 
@@ -452,7 +496,7 @@ Only report architectural violations when detected by:
 - Custom architectural linters configured in the repository
 - Explicit rules in `AGENTS.md` with tool-backed enforcement
 
-### 13.2. Prohibited inferences
+### 14.2. Prohibited inferences
 
 NEVER claim:
 
@@ -460,7 +504,7 @@ NEVER claim:
 - "This breaks hexagonal architecture..." without a tool report.
 - "This CQRS boundary is wrong..." without configured enforcement.
 
-### 13.3. Reporting
+### 14.3. Reporting
 
 If no tool-backed violation detected: _"No architectural violation was detected by executed checks and inspected boundaries."_
 
@@ -468,7 +512,7 @@ Never claim absolute architectural correctness.
 
 ---
 
-## 14. Evidence Confidence Categories
+## 15. Evidence Confidence Categories
 
 | Category            | Meaning                                            |
 | ------------------- | -------------------------------------------------- |
@@ -481,9 +525,9 @@ Never convert inferred conventions into enforced policies.
 
 ---
 
-## 15. Commit Execution Authorization
+## 16. Commit Execution Authorization
 
-### 15.1. Authorization criteria
+### 16.1. Authorization criteria
 
 Accept explicit instructions: "Commit these changes", "Create the proposed commits", "Execute the approved commit plan", "Stage these specific files
 and commit them."
@@ -491,34 +535,34 @@ and commit them."
 Do NOT interpret as authorization: "Prepare commits", "Suggest commit messages", "Analyze my changes", "Tell me what I should commit", "Review the
 staging area."
 
-### 15.2. Scope confirmation
+### 16.2. Scope confirmation
 
 Before modifying the index: identify intended files, understand existing staged changes, confirm grouping, agree on messages, ensure no unrelated
 changes included. If ambiguous, ask.
 
-### 15.3. Selective staging
+### 16.3. Selective staging
 
 Stage only authorized files/hunks. Never use broad staging. Preserve existing staging decisions. If safe separation cannot be established, stop and
 request clarification.
 
-### 15.4. Hook-aware execution
+### 16.4. Hook-aware execution
 
 When a mandatory hook runs: wait for completion, do not claim success prematurely, do not rerun equivalent checks, do not bypass. If hook fails: stop,
 preserve index, report failure.
 
-### 15.5. Commit verification
+### 16.5. Commit verification
 
 After every authorized commit, record: actual commit hash, actual message, included paths, hook results, validation results. **Never claim success
 before Git confirms.**
 
-### 15.6. Final verification
+### 16.6. Final verification
 
 Run `git status --short --branch` after the authorized sequence. Verify created commits, remaining changes, unexpected modifications, user-owned
 changes intact. Do not auto-clean working tree.
 
 ---
 
-## 16. Structured Output Schema
+## 17. Structured Output Schema
 
 All reports MUST follow this JSON schema. Use Markdown rendering for human display, but the underlying structure must be machine-parseable.
 
@@ -586,7 +630,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 17. Workflow State Machine
+## 18. Workflow State Machine
 
 1. **Detect intent** — Is commit-related work primary? If no, do not activate.
 2. **Capture baseline** — Inspect Git status and diffs.
@@ -603,7 +647,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 18. Edge Cases
+## 19. Edge Cases
 
 - **Reverts:** Use format recognized by configured preset. A `revert` commit does not automatically cancel a release.
 - **Missing release config:** Report `UNKNOWN`. Provide labeled estimates only.
@@ -618,7 +662,7 @@ All reports MUST follow this JSON schema. Use Markdown rendering for human displ
 
 ---
 
-## 19. Core Operating Principles
+## 20. Core Operating Principles
 
 **Always prioritize:**
 
