@@ -2,7 +2,8 @@
 
 # Setup a clean test repository
 
-REPO_DIR="$(dirname "${BASH_SOURCE[0]}")/../test-repo-clean"
+# Use TEST_REPO_DIR if set, otherwise use default location
+REPO_DIR="${TEST_REPO_DIR:-$(dirname "${BASH_SOURCE[0]}")/../test-repo-clean}"
 
 # Clean up if exists
 rm -rf "$REPO_DIR"

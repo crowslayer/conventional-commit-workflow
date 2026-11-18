@@ -27,7 +27,9 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-          cache-dependency-path: "mcp_server/pnpm-lock.yaml"
+          cache-dependency-path: |
+            mcp_server/pnpm-lock.yaml
+            tests/harness/pnpm-lock.yaml
 
       - name: Install MCP server dependencies
         working-directory: ./mcp_server
@@ -37,11 +39,18 @@ jobs:
         working-directory: ./mcp_server
         run: pnpm run build
 
-      - name: Make eval scripts executable
-        run: chmod +x tests/run_evals.sh
+      - name: Install test harness dependencies
+        working-directory: ./tests/harness
+        run: pnpm install --frozen-lockfile
 
-      - name: Run eval suite
+      - name: Build test harness
+        working-directory: ./tests/harness
+        run: pnpm run build
+
+      - name: Run eval suite with mock backend
         run: ./tests/run_evals.sh
+        env:
+          LLM_BACKEND: mock
 
       - name: Upload test results
         if: always()

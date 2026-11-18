@@ -2,7 +2,7 @@
 
 # Setup a repository in a dangerous state (merge in progress)
 
-REPO_DIR="$(dirname "${BASH_SOURCE[0]}")/../test-repo-dangerous"
+REPO_DIR="${TEST_REPO_DIR:-$(dirname "${BASH_SOURCE[0]}")/../test-repo-dangerous}"
 
 # Clean up if exists
 rm -rf "$REPO_DIR"
@@ -26,7 +26,7 @@ git add file.txt
 git commit -m "Feature commit"
 
 # Go back to main and create conflicting change
-git checkout main
+git checkout main 2>/dev/null || git checkout master
 echo "main change" > file.txt
 git add file.txt
 git commit -m "Main commit"

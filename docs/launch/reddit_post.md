@@ -9,9 +9,9 @@ Hey everyone,
 I've been frustrated with AI coding assistants being too eager with Git operations. They run `git add .`, mix unrelated changes into single commits,
 hallucinate repository conventions, and sometimes even run destructive commands.
 
-So I built a solution: [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow) — a system prompt / agent skill
-that turns any AI assistant (Cursor, Windsurf, Claude, GPT, etc.) into a specialized Git commit management agent with **defensive engineering** as the
-core principle.
+So I built a solution: [Conventional Commit Workflow](https://github.com/crowslayer/conventional-commit-workflow) — a system prompt / agent skill that
+turns any AI assistant (Cursor, Windsurf, Claude, GPT, etc.) into a specialized Git commit management agent with **defensive engineering** as the core
+principle.
 
 ## What it does:
 
@@ -54,7 +54,7 @@ Every release is validated against automated behavioral tests:
 - **Claude Projects**: Paste into Project Instructions
 - **MCP**: Use the included server for agent frameworks
 
-GitHub: https://github.com/yourusername/conventional-commit-workflow
+GitHub: https://github.com/crowslayer/conventional-commit-workflow
 
 Would love feedback from the community. What other safety guardrails do you think AI agents need for Git operations?
 

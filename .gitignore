@@ -40,7 +40,7 @@ desktop.ini
 # Cursor specific (optional, but good to keep local settings private)
 .cursor/
 .cursorignore
-.cursorrules
+
 
 # VS Code
 .vscode/*
@@ -62,6 +62,7 @@ desktop.ini
 # Ignore generated test results, but keep the folder structure
 tests/results/*.json
 tests/results/*.log
+tests/results/*.html
 coverage/
 .nyc_output/
 
