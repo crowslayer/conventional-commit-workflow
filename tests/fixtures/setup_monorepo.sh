@@ -2,7 +2,7 @@
 
 # Setup a monorepo test repository
 
-REPO_DIR="$(dirname "${BASH_SOURCE[0]}")/../test-repo-monorepo"
+REPO_DIR="${TEST_REPO_DIR:-$(dirname "${BASH_SOURCE[0]}")/../test-repo-monorepo}"
 
 # Clean up if exists
 rm -rf "$REPO_DIR"

@@ -1,6 +1,8 @@
 import { execSync } from "child_process";
 import { existsSync, readFileSync, readdirSync } from "fs";
 import { dirname, join } from "path";
+import { analyzeDiff, getChunk } from "./chunking.js";
+import { analyzeCommitGroupings } from "./grouping.js";
 
 // ============================================
 // Helper Functions
@@ -170,7 +172,6 @@ export async function callTool(name: string, args: any) {
       }
 
       case "git_diff": {
-        const { analyzeDiff } = await import("./chunking.js");
         const threshold = args.threshold || 2000;
         const analysis = analyzeDiff(cwd, args.staged || false, args.path, threshold);
 
@@ -253,21 +254,18 @@ export async function callTool(name: string, args: any) {
         };
       }
       case "analyze_commit_groupings": {
-        const { analyzeCommitGroupings } = await import("./grouping");
         const strategy = args.strategy || "hybrid";
         const analysis = analyzeCommitGroupings(cwd, strategy);
         return { content: [{ type: "text", text: JSON.stringify(analysis, null, 2) }] };
       }
 
       case "get_diff_summary": {
-        const { analyzeDiff } = await import("./chunking.js");
         const threshold = args.threshold || 2000;
         const analysis = analyzeDiff(cwd, args.staged || false, args.path_filter, threshold);
         return { content: [{ type: "text", text: JSON.stringify(analysis, null, 2) }] };
       }
 
       case "get_diff_chunk": {
-        const { getChunk } = await import("./chunking.js");
         const chunk = getChunk({
           repository_path: cwd,
           chunk_id: args.chunk_id,

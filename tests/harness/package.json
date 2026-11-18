@@ -1,0 +1,30 @@
+{
+  "name": "conventional-commit-workflow-test-harness",
+  "version": "2.4.0",
+  "description": "Real test harness for evaluating the Conventional Commit Workflow agent",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "eval-harness": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node dist/index.js",
+    "test:mock": "LLM_BACKEND=mock node dist/index.js",
+    "test:ollama": "LLM_BACKEND=ollama node dist/index.js",
+    "test:anthropic": "LLM_BACKEND=anthropic node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "openai": "^4.70.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.4",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
