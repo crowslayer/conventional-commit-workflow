@@ -29,7 +29,7 @@ This is not an isolated incident. It's a systemic problem.
 I decided to build a solution: a **system prompt / agent skill** that turns any AI assistant into a specialized Git commit management agent — but with
 **defensive engineering** as the core principle.
 
-The result is the [Conventional Commit Workflow](https://github.com/yourusername/conventional-commit-workflow), now at v1.4.0.
+The result is the [Conventional Commit Workflow](https://github.com/crowslayer/conventional-commit-workflow), now at v1.4.0.
 
 ## What Makes It Different
 
@@ -148,7 +148,7 @@ It's not perfect. It's not comprehensive. But it's **safe**, **evidence-based**,
 
 If you're tired of your AI assistant running `git add .` without asking, give it a try.
 
-[GitHub Repository](https://github.com/yourusername/conventional-commit-workflow)
+[GitHub Repository](https://github.com/crowslayer/conventional-commit-workflow)
 
 ---
 
