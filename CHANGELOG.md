@@ -1,3 +1,14 @@
+## [2.5.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.4.0...v2.5.0) (2026-11-18)
+
+###  Features
+
+* **test:** implement real test harness with intelligent mock client (v2.4.0) ([578e31f](https://github.com/crowslayer/conventional-commit-workflow/commit/578e31f69b77155e957a9a30072856c10a2eaacf))
+
+###  Bug Fixes
+
+* **ci:** mark shell scripts as executable for GitHub Actions ([8e7e4f8](https://github.com/crowslayer/conventional-commit-workflow/commit/8e7e4f8ba09b7ad697679dff58512aeefce6ab6c))
+* **markdownlint:** correct rule identifier from MD0019 to MD019 in configuration ([98a03d0](https://github.com/crowslayer/conventional-commit-workflow/commit/98a03d019e050ff9e10fcaeb9f0f94541e97c738))
+
 ## [2.4.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.3.0...v2.4.0) (2026-11-13)
 
 ### Features
