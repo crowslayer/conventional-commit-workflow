@@ -43,6 +43,14 @@ jobs:
         working-directory: mcp_server
         run: pnpm run build
 
+      - name: Create skill bundle
+        run: |
+          rm -rf dist-skill skill-bundle.zip
+          mkdir -p dist-skill
+          cp skills/v2.0.0/SKILL.md dist-skill/SKILL.md
+          cp skills/v2.0.0/system_prompt.md dist-skill/system_prompt.md
+          (cd dist-skill && zip -r ../skill-bundle.zip .)
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

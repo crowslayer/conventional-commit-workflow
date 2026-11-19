@@ -40,12 +40,19 @@ function replaceInFile(relPath, regex, replacement) {
 // Root package.json
 updateJson("package.json");
 
-// Skill system prompt metadata version
-replaceInFile(
-  "skills/v2.0.0/system_prompt.md",
-  /^(\s*version:\s*")[^"]*(")/m,
-  `$1${version}$2`,
-);
+// Skill system prompt metadata version (both filenames for compatibility)
+for (const skillFile of ["skills/v2.0.0/system_prompt.md", "skills/v2.0.0/SKILL.md"]) {
+  replaceInFile(
+    skillFile,
+    /^(\s*version:\s*")[^"]*(")/m,
+    `$1${version}$2`,
+  );
+  replaceInFile(
+    skillFile,
+    /^# Conventional Commit Workflow v[^\n]*/m,
+    `# Conventional Commit Workflow v${version}`,
+  );
+}
 
 // MCP server source version
 replaceInFile(

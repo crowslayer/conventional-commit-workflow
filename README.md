@@ -114,6 +114,24 @@ npm run build
 
 Then configure your MCP client to connect to the server. See [`mcp_server/README.md`](./mcp_server/README.md).
 
+### Standalone skill (system prompt, no MCP)
+
+The skill is also available as a standalone system prompt. Download or copy [`skills/v2.0.0/SKILL.md`](./skills/v2.0.0/SKILL.md)
+(a `SKILL.md`-compatible file usable by OpenCode, Claude Skills, and other skill-aware agents):
+
+| Platform | Where to paste | What to paste |
+| -------- | -------------- | ------------ |
+| OpenCode / Claude Skills | `~/.config/opencode/skills/conventional-commit-workflow/SKILL.md` (or project `.opencode/skills/...`) | Whole file (frontmatter + body) |
+| Claude Projects | Project Instructions | Body only (drop frontmatter) |
+| Cursor | `.cursorrules` | Body only |
+| Windsurf | `.windsurfrules` | Body only |
+| VS Code Copilot | `.github/copilot-instructions.md` | Body only |
+| Custom GPT | GPT system instructions | Body only |
+| OpenAI Assistants | `instructions` field | Body only (mind token limits) |
+| Gemini | System instructions | Body only |
+
+A downloadable bundle (`skill-bundle.zip`) is attached to each [GitHub Release](https://github.com/crowslayer/conventional-commit-workflow/releases).
+
 ## 📋 Usage Examples
 
 ### Analyze changes (read-only)

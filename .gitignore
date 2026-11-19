@@ -79,6 +79,12 @@ lerna-debug.log*
 # ==========================================
 *.tmp
 *.temp
+
+# ==========================================
+# Release artifacts (generated in CI)
+# ==========================================
+dist-skill/
+skill-bundle.zip
 *.swp
 *.swo
 *~
