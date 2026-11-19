@@ -14,7 +14,7 @@ import { callTool, tools } from "./tools.js";
 const server = new Server(
   {
     name: "conventional-commit-workflow",
-    version: "2.0.0",
+    version: "2.5.0",
   },
   {
     capabilities: {

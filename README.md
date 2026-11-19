@@ -2,7 +2,7 @@
 
 > A defensive, evidence-based Git commit management agent skill for AI coding assistants.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](./skills/v2.0.0/system_prompt.md)
+[![Version](https://img.shields.io/badge/version-2.5.0-blue)](./skills/v2.0.0/system_prompt.md)
 [![Eval Status](https://img.shields.io/badge/eval-passing-brightgreen)](./tests/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-compatible-purple)](./mcp_server/)
@@ -90,6 +90,21 @@ Paste the skill content into the Project Instructions.
 Use the skill content as the GPT's system instructions.
 
 ### MCP Server (for agent frameworks)
+
+**Option A — zero install via npx (recommended for end users):**
+
+```json
+{
+  "mcpServers": {
+    "conventional-commit-workflow": {
+      "command": "npx",
+      "args": ["-y", "conventional-commit-workflow-mcp"]
+    }
+  }
+}
+```
+
+**Option B — from source:**
 
 ```bash
 cd mcp_server

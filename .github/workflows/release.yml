@@ -35,6 +35,14 @@ jobs:
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
 
+      - name: Instalar dependencias MCP
+        working-directory: mcp_server
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP server
+        working-directory: mcp_server
+        run: pnpm run build
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

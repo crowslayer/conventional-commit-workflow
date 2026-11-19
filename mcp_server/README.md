@@ -47,6 +47,37 @@ node dist/index.js
 
 - `conventional_commit_workflow` - Full skill prompt with optional mode activation
 
+## Quick start (npx)
+
+No installation required:
+
+```bash
+npx -y conventional-commit-workflow-mcp
+```
+
+MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "conventional-commit-workflow": {
+      "command": "npx",
+      "args": ["-y", "conventional-commit-workflow-mcp"]
+    }
+  }
+}
+```
+
+## Publishing (maintainers)
+
+```bash
+npm login
+npm run build
+npm publish
+```
+
+`prepublishOnly` runs the build automatically.
+
 ## Security
 
 This server executes shell commands. Only use it in trusted environments. The `run_bash` tool should be used with caution and only for read-only commands unless explicitly authorized.

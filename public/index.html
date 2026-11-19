@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conventional Commit Workflow — AI agent skill</title>
+  <meta name="description" content="A defensive, evidence-based Git commit management agent skill for AI coding assistants. Available as an MCP server (npx) and as a standalone system prompt." />
+  <style>
+    :root { --bg:#0b1020; --card:#131a2e; --fg:#e6eaf2; --muted:#9aa4bf; --accent:#7c9cff; --ok:#4ade80; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--fg); line-height:1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 24px; }
+    h1 { font-size: 2.4rem; margin: 0 0 8px; }
+    h2 { margin-top: 40px; color: var(--accent); }
+    p.lead { color: var(--muted); font-size: 1.15rem; }
+    .badges { display:flex; gap:8px; flex-wrap:wrap; margin: 16px 0 32px; }
+    .badge { background:#1f2744; border:1px solid #2a3458; padding:4px 10px; border-radius:999px; font-size:.85rem; }
+    .card { background:var(--card); border:1px solid #1f2744; border-radius:12px; padding:20px; margin:16px 0; }
+    pre { background:#0a0f1e; border:1px solid #1f2744; border-radius:8px; padding:14px; overflow:auto; font-size:.9rem; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .btn { display:inline-block; background:var(--accent); color:#0b1020; padding:10px 16px; border-radius:8px; text-decoration:none; font-weight:600; margin-right:8px; }
+    .btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+    footer { margin-top:48px; color:var(--muted); font-size:.9rem; }
+    ul { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Conventional Commit Workflow</h1>
+    <p class="lead">A defensive, evidence-based Git commit management agent skill for AI coding assistants. Analyzes your working tree, groups changes into atomic commits, applies Conventional Commits, evaluates semantic-release impact, and executes only when you explicitly authorize it.</p>
+    <div class="badges">
+      <span class="badge">v2.5.0</span>
+      <span class="badge">MIT</span>
+      <span class="badge">MCP compatible</span>
+      <span class="badge">Cursor / Windsurf / Copilot / Claude</span>
+    </div>
+    <a class="btn" href="https://github.com/crowslayer/conventional-commit-workflow">GitHub</a>
+    <a class="btn secondary" href="https://www.npmjs.com/package/conventional-commit-workflow-mcp">npm</a>
+
+    <h2>Install as MCP server (recommended)</h2>
+    <div class="card">
+      <p>Add to your MCP client config (Claude Desktop, Cursor, etc.):</p>
+      <pre><code>{
+  "mcpServers": {
+    "conventional-commit-workflow": {
+      "command": "npx",
+      "args": ["-y", "conventional-commit-workflow-mcp"]
+    }
+  }
+}</code></pre>
+      <p>No Vercel hosting needed: the server runs locally so it can access your Git repository.</p>
+    </div>
+
+    <h2>Use as standalone skill (system prompt)</h2>
+    <div class="card">
+      <p>Copy the contents of <code>skills/v2.0.0/system_prompt.md</code> into your <code>.cursorrules</code>, Copilot instructions, Claude Project instructions, or Custom GPT system prompt.</p>
+      <pre><code>git clone https://github.com/crowslayer/conventional-commit-workflow.git
+cat conventional-commit-workflow/skills/v2.0.0/system_prompt.md</code></pre>
+    </div>
+
+    <h2>Safety guarantees</h2>
+    <ul>
+      <li>Never runs <code>git reset --hard</code>, <code>git checkout -- .</code>, or <code>git restore .</code></li>
+      <li>Never runs <code>git add .</code> or <code>git add -A</code></li>
+      <li>Never amends, rebases, pushes, or rewrites history without explicit authorization</li>
+      <li>Never bypasses Git hooks</li>
+      <li>Execution requires explicit user authorization</li>
+    </ul>
+
+    <h2>Why not host the MCP server on Vercel?</h2>
+    <p class="lead" style="font-size:1rem">The skill's tools operate on your local Git working tree (<code>git status</code>, <code>git diff</code>, file reads). A remote server on Vercel cannot access your repository, so it would be useless and unsafe. Distribution via npm + <code>npx</code> is the standard for local MCP servers. Vercel is used here only for this documentation page.</p>
+
+    <footer>
+      MIT © Alexander Herrera · <a href="https://github.com/crowslayer/conventional-commit-workflow">Source</a>
+    </footer>
+  </div>
+</body>
+</html>
