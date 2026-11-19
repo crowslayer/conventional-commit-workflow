@@ -86,10 +86,7 @@
     [
       "@semantic-release/github",
       {
-        "assets": [
-          { "path": "mcp_server/dist/**/*.js", "label": "MCP Server Distribution" },
-          { "path": "skill-bundle.zip", "label": "Standalone Skill Bundle" }
-        ]
+        "assets": [{ "path": "skill-bundle.zip", "label": "Standalone Skill Bundle" }]
       }
     ]
   ]
