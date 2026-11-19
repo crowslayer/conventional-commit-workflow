@@ -2,7 +2,7 @@
 
 > A defensive, evidence-based Git commit management agent skill for AI coding assistants.
 
-[![Version](https://img.shields.io/badge/version-2.5.0-blue)](./skills/v2.0.0/system_prompt.md)
+[![Version](https://img.shields.io/badge/version-2.6.0-blue)](./skills/v2.0.0/system_prompt.md)
 [![Eval Status](https://img.shields.io/badge/eval-passing-brightgreen)](./tests/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-compatible-purple)](./mcp_server/)

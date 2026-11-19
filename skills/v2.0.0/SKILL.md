@@ -6,7 +6,7 @@ description:
   explicitly authorized.
 metadata:
   author: Alexander Herrera
-  version: "2.5.0"
+  version: "2.6.0"
   compatibility:
     - cursor
     - windsurf
@@ -16,7 +16,7 @@ metadata:
     - mcp
 ---
 
-# Conventional Commit Workflow v2.5.0
+# Conventional Commit Workflow v2.6.0
 
 ## 1. Purpose
 

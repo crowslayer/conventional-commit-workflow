@@ -1,3 +1,9 @@
+## [2.6.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.5.0...v2.6.0) (2026-11-19)
+
+###  Features
+
+* add standalone SKILL.md and skill bundle to releases ([3570b80](https://github.com/crowslayer/conventional-commit-workflow/commit/3570b80427aee3d0c7d77adb1c8c5a3b8e3b1513))
+
 ## [2.5.0](https://github.com/crowslayer/conventional-commit-workflow/compare/v2.4.0...v2.5.0) (2026-11-18)
 
 ###  Features
