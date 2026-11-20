@@ -1,4 +1,5 @@
 ---
+name: conventional-commit-workflow
 description:
   Analyze Git working-tree changes, identify atomic commit boundaries, discover repository-specific commit conventions and release rules, validate
   Conventional Commit messages, and prepare commit plans. Use when the user explicitly requests commit analysis, commit preparation, Conventional
