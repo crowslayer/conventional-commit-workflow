@@ -45,11 +45,6 @@ for (const skillFile of ["skills/v2.0.0/system_prompt.md", "skills/v2.0.0/SKILL.
   replaceInFile(skillFile, /^(\s*version:\s*")[^"]*(")/m, `$1${version}$2`);
   replaceInFile(skillFile, /^# Conventional Commit Workflow v[^\n]*/m, `# Conventional Commit Workflow v${version}`);
 }
-// Sync latest SKILL.md to skills/SKILL.md for npx skills CLI compatibility
-const sourceSkill = path.join(root, "skills/v2.0.0/SKILL.md");
-const targetSkill = path.join(root, "skills/SKILL.md");
-fs.copyFileSync(sourceSkill, targetSkill);
-console.log("synced skills/v2.0.0/SKILL.md -> skills/SKILL.md");
 
 // MCP server source version
 replaceInFile("mcp_server/src/index.ts", /version:\s*"[^"]*"/, `version: "${version}"`);
